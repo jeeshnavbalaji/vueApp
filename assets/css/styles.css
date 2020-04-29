@@ -1,0 +1,305 @@
+table {
+  table-layout: fixed;
+  font-family: 'Open Sans', sans-serif;
+  border-collapse: collapse;
+  border: 1px solid #cdccdb;
+  margin: 10px 10px 0 0px;
+  padding: 100px;
+  overflow-x: auto;
+}
+
+table th {
+  text-transform: uppercase;
+  background: #337ab7;
+  color: #FFF;
+  min-width: 30px;
+  text-align: center;
+  font-size: 80%;
+  border-right: 2px solid #337AE0;
+}
+
+table td {
+  text-align: left;
+  padding: 8px;
+  font-size: 70%
+}
+table td:last-child {
+  border-right: none;
+}
+table tbody tr:nth-child(2n) td {
+  background: #cdccdb;
+}
+
+table.fixed {table-layout:fixed;}/*Setting the table width is important!*/
+table.fixed td {overflow:hidden;}/*Hide text outside the cell.*/
+table.fixed td:nth-of-type(1) {width:150px;}/*Setting the width of column 1.*/
+
+.background-action {
+    text-align: center;
+    color: white;
+    border-radius: 3px;
+	padding: 2px;
+    background-color: #078f0c;
+}
+
+.background-in {
+    text-align: center;
+    color: white;
+    border-radius: 3px;
+    padding: 2px;
+    background-color: #2e21eb;
+}
+
+.text-danger{
+	text-align: center;
+    color: white;
+    border-radius: 3px;
+    padding: 2px;
+	background-color: red !important;
+}
+
+.background-out{
+	text-align: center;
+    color: white;
+    border-radius: 3px;
+    padding: 2px;
+	background-color: orange !important;
+}
+
+.search-dropdown {
+	color:black;
+	width:100%;
+}
+.input-boarder {
+	border:0px;
+	padding:0px;
+}
+
+/* Tabs related styles */
+
+.default-tabs {
+  position: relative;
+  margin: 0 auto;
+  &__item {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 10px;
+    padding-bottom: 8px;
+    font-size: 16px;
+    letter-spacing: 0.8px;
+    color: gray;
+    text-decoration: none;
+    border: none;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s;
+    &_active {
+      color: black;
+    }
+    &:hover {
+      border-bottom: 2px solid gray;
+      color: black;
+    }
+    &:focus {
+      outline: none;
+      border-bottom: 2px solid gray;
+      color: black;
+    }
+    &:first-child {
+      margin-left: 0;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+  &__active-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background-color: blue;
+    transition: transform 0.4s ease, width 0.4s ease;
+  }
+}
+.content {
+  margin-top: 30px;
+  font-size: 20px;
+}
+
+section.login-screen {
+    background: #fff;
+}
+section.login-screen .row>div {
+    /* width: 100%; */
+    -ms-align-items: center;
+    -ms-display: inline-flex;
+    display: inline-flex;
+    -ms-justify-content: center;
+    justify-content: center;
+    padding: 55px;
+    border-radius: 18px;
+    box-shadow: 0 0 25px 3px #F1F1F1;
+}
+section.login-screen .row {
+    height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+span.logo-img {
+    margin-bottom: 27px;
+    display: block;
+}
+
+.hidden { 
+	display: none; 
+}
+div#loginTab > span {
+    display: block;
+    FONT-WEIGHT: 100;
+}
+
+div#loginTab > span input {
+    border: 0;
+    width: 100%;
+    display: block;
+    background: #eee;
+    padding: 6px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+div#loginTab > span label {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+div#loginTab > span input[type="submit"] {
+    background: #0d3b59;
+    color: #fff;
+    max-width: 140px;
+    border-radius: 25px;
+    margin: 10px auto;
+    display: block;
+outline: none;
+}
+
+label#lblLoginErrMsg {
+    background: #ffecec;
+    color: #ff7d7d;
+    padding: 2px 5px;
+    border-radius: 3px;
+max-width: 200px;
+    text-align: center;
+}
+.header-logout {
+  float: right;
+    margin-top: 11px;
+    margin-right: 14px;
+}
+.navbar-header {
+width:100%
+}
+
+.nodata {
+	text-align:center;
+	border:1px darkgray
+}
+
+.whitelist-background {
+	background: green;
+}
+.threatlist-background {
+	background: orange;
+}
+.blacklist-background {
+	background: black;
+}
+
+.list-styles {
+    color: white;
+    display: block;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+optgroup,
+select,
+textarea {
+  color: black !important;
+}
+
+.fixed_header{
+    width: 400px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.fixed_header tbody{
+  overflow-x: scroll;
+  height: 100px;
+}
+
+.fixed_header thead {
+  background: black;
+  color:#fff;
+}
+
+.fixed_header th, .fixed_header td {
+  padding: 5px;
+  text-align: left;
+  width: 200px;
+}
+
+
+.pane--table2 {
+  overflow-x: scroll;
+}
+.pane--table2 th, .pane--table2 td {
+  width: auto;
+  min-width: 160px;
+}
+.pane--table2 tbody {
+  overflow-y: hidden;
+  overflow-x: scroll;
+  display: block;
+}
+.pane--table2 thead {
+    display: table-row;
+}
+
+/*dater range picker calendar */
+.daterangepicker .drp-calendar.right {
+    display: none;
+}
+
+.emailAlertButtonsPosition {
+	display: block;
+	text-align: center;
+	margin: 10px;
+}
+
+.emailAlertDropdown {
+	display: inline-block !important;
+    width: auto !important;
+    height: auto !important;
+}
+.emailAlertTabFields {
+	width: 30%;
+    text-align: right;
+    margin-right: 30px;
+}
+.emailAlertFieldsDropdown {
+	display: inline-block !important;
+    width: 50% !important;
+    height: auto !important;
+}
+.emailAlertRowMargin {
+	margin-bottom: 10px;
+}
+.emailAlertInputWidth {
+	width: 50%;
+	border-radius: 3px;
+}

@@ -1,0 +1,550 @@
+﻿<!DOCTYPE html>
+<html>
+ <head>
+  <link rel='icon' href='/assets/img/bandura_favicon.ico' type='image/x-icon'/ >
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>  
+  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+  <!--<script src="assets/js/moment.min.js" type="text/javascript"></script>-->
+  <script src="assets/js/jquery.growl.js" type="text/javascript"></script>
+  <script src="assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+  <link href="assets/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+  <link href="assets/css/jquery.growl.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+   <!-- Latest compiled JavaScript -->
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+ </head>
+ <body class="is-preload">
+ 
+   <div id="page-wrapper">
+	 
+	 <div id="root">
+	 <nav class="navbar navbar-default" style="background:#0d3b59">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><img src="/assets/img/Bandura_Cyber_Logo.svg" width = "150" style="margin-top: -7px;"/></a>
+<span class="header-logout">
+        <input type="submit" class="hidden" id="logout" value="Logout" @click="logout()" style="float:right;">
+      </span>
+    </div>
+	
+  </div>
+</nav>
+		<template>
+		<section class="login-screen" id="login">		
+        <div class="login-inner container-fluid">
+            <div class="row">
+                <div class="login-wrap">
+                    <div class="form-inner">
+                        <span class="logo-img">
+                            <img src="/assets/img/Bandura_Cyber_Logo.png" alt="Bandura_Cyber_Logo">
+                        </span>
+                        <h2>Sign In</h2>
+                        <div class="tab-content">
+                            <div id="loginTab" class="tab-pane fade in active">
+                               
+                                    <span>
+									<label>USERNAME:</label>
+                                        <input type="text" name="" placeholder="USERNAME" v-model="uname">
+                                    </span>
+                                    <span>
+									<label>PASSWORD:</label>
+                                        <input type="password" name="" placeholder="PASSWORD" v-model="pwd">
+                                    </span>
+                                    
+                                    <span>
+                                        <input type="submit" value="Login" @click="login()">
+                                    </span>
+									<span>
+                                        <label id="lblLoginErrMsg" class="hidden">
+											Login attemt failed.Please provide proper login details.
+										</label>
+                                    </span>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+	<section>
+		<div class="container hidden" id="emailAlert">
+			<h3 style="color: blue;">E-mail Alerts</h3><br>
+			<span>
+				<label>Send Alerts to E-mail Address: </label>
+				<input type="email" style="min-width: 35%" v-model="emailAlertArray" placeholder="Enter E-mail or Multiple Emails with comma separated">
+			</span><br>
+			<span class="row">
+				<label>Send Log: </label>
+				<select class="form-control emailAlertDropdown" style="margin-left: 20px;" v-model="emailAlertSendLog">
+					<option value="daily">Daily</option>
+					<option value="weekly">Weekly</option>
+					<option value="monthly">Monthly</option>
+				</select>
+				<label> every </label>
+				<select class="form-control emailAlertDropdown" v-model="emailAlertdayOfWeek" :disabled="emailAlertSendLog == 'daily'">
+					<option value="sunday">Sun</option>
+					<option value="monday">Mon</option>
+					<option value="tuesday">Tue</option>
+					<option value="wednesday">Wed</option>
+					<option value="thursday">Thu</option>
+					<option value="friday">Fri</option>
+					<option value="saturday">Sat</option>
+				</select>
+				<label>at</label>
+				<input type="time" name="time" value="23:59"/ v-model="emailAlertTime">(24-Hour Format)
+			</span><br>
+			<span>
+				<label>Email format: </label>
+				<select class="form-control emailAlertDropdown" v-model="emailAlertFileFormat">
+					<option value="csv">CSV</option>
+					<option value="excel">EXCEL</option>
+				</select>
+			</span><br>
+			
+			<input type="checkbox" id="emailAlertCheckAll" v-model="emailAlertChecked"> <label>Include All Log Information</label><br>
+			<div>
+				<ul class="nav nav-tabs">
+						<li class="active"><a data-toggle="tab" href="#emailAlertPacket">Packet</a></li>
+						<li><a data-toggle="tab" href="#emailAlertDomain">Domain</a></li>
+				</ul>
+				<div class="tab-content ">
+					<div id="emailAlertPacket" class="tab-pane fade in active" style="margin:20px" :disabled="emailAlertChecked == 'true'">
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">COUNTRY</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketCountry">
+									<option value="all">All</option>
+									<option v-for="country in countryDropdownArr" v-bind:value="country">{{country}}</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">ASN</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertPacketASN" placeholder="Enter ASN"/>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">PROTOCOL</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketProtocol">  
+									<option value="all" selected>All</option>
+									<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">SOURCE IP</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertPacketSource" placeholder="Enter Source IP"/>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DESTINATION IP</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertPacketDestination" placeholder="Enter Destination IP"/>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DIRECTION</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDirection">        
+									<option value="all">All</option>
+									<option v-for="direction in directionArr" v-bind:value="direction">{{direction | capitalize}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">ACTION</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketAction">        
+									<option value="all">All</option>
+									<option value="denied">Deny</option>
+									<option value="allowed">Allow</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">CATEGORY</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketCategory">        
+									<option value="all">All</option>
+									<option v-for="category in categoryDropdownArr" v-bind:value="category">{{category}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">REASON</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketReason">        
+									<option value="all" selected>All</option>
+									<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">LIST</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertPacketList" placeholder="Enter LIST(threatlists/blacklists/whitelists)"/>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">RESOURCE GROUP</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketResourceGroup">        
+									<option value="all">All</option>
+									<option value="outbound">DEFAULT OUTBOUND</option>
+									<option value="inbound">DEFAULT INBOUND</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DEVICE</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDevice">        
+									<option value="all" selected>All</option>
+									<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div id="emailAlertDomain" class="tab-pane fade" style="margin:20px" :disabled="emailAlertChecked == 'true'">
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DOMAIN</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertDomainDomain" placeholder="Enter Domain"/>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">PROTOCOL</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainProtocol">  
+									<option value="all" selected>All</option>
+									<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">SOURCE</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertDomainSource" placeholder="Enter Source IP"/>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DESTINATION</label>
+								<input class="emailAlertInputWidth" v-model="emailAlertDomainDestination" placeholder="Enter Destination IP"/>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">ACTION</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainAction">        
+									<option value="all" selected>All</option>
+									<option value="denied">Deny</option>
+									<option value="allowed">Allow</option>
+								</select>
+							</div>
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">REASON</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainReason">        
+									<option value="all" selected>All</option>
+									<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<span class="emailAlertButtonsPosition">
+				<button type="button" class="btn btn-success" @click="saveEmailAlert();">Save</button>
+				<button type="button" class="btn btn-light" @click="emailAlertCancle();">Cancel</button>
+			</span>
+		</div>
+	</section>
+			<div class="container hidden" id="content">
+				<div class="row">
+					<div class="col-sm" style="font-size:20px;border-bottom: 1px solid whitesmoke;">
+						<i class="fa fa-list-ol" aria-hidden="true"></i><b style="margin-left:2px">Internal Logs</b>
+					</div>
+				</div>
+				
+			<div>
+					<ul class="nav nav-tabs">
+						<li class="active"><a data-toggle="tab" href="#packet" @click="getLogsByType('packet')">Packet</a></li>
+						<li><a data-toggle="tab" href="#domain" @click="getLogsByType('domain')">Domain</a></li>
+						<li><a data-toggle="tab" href="#system" @click="getLogsByType('system')">System</a></li>
+						<li><a data-toggle="tab" href="#audit">Audit</a></li>
+					</ul>
+				<div class="tab-content">
+						<div class="row" style="margin-top:10px;">
+				    <div class="col-sm">
+						<label>Per Page:</label>
+						<select id="sel-options" @change="setPageSize($event)" v-model="pageSize" class="form-control mr-2" style="display: inline;width: auto;">
+							<option v-bind:value="20">20</option>
+							<option v-bind:value="50">50</option>
+							<option v-bind:value="100">100</option>
+							<option v-bind:value="500">500</option>
+							<option v-bind:value="1000">1000</option>
+						</select>
+						<ul class="pagination pagination-sm" style="margin: 0px;padding-left: 10px;padding-right: 10px;margin-bottom: -10px;">
+							<li class="page-item"><a class="page-link" @click="getRrecentOrOldDocs('desc')"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+							<li class="page-item"><a class="page-link" @click="nextPage();"><i class="fa fa-angle-left" aria-hidden="true"></i></a></li>
+							<li class="page-item"><a class="page-link" @click="previousPage();"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
+							<li class="page-item"><a class="page-link" @click="getRrecentOrOldDocs('asc')"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+						</ul>
+						<label for="sel-options">Time Zone:</label> 
+						<select id="sel-options" @change="setTimezone($event)" class="form-control mr-2" style="display: inline;width: auto;">
+							<option disabled="disabled" value="">Select…</option>
+							<option value="UTC">UTC</option>
+							<hr><option v-for="timezone in timezoneArr" :value="timezone">{{timezone}}</option>
+						</select>
+						<span class="btn btn-default copy-btn ml-auto" @click="copyToClipboard();">Export...</span>
+						<span class="btn btn-default copy-btn ml-auto" @click="setEmailAlert();">Email Alerts</span>
+						<a style="float:right;margin-right: 20px;"><label @click="resetSearchFilters()">Reset</label></a>
+					</div>
+				</div>
+				<div id="packet" class="tab-pane fade in active">
+					<div class="row">
+						<div class="col-sm" >
+						<font size="3">
+							<table id="packetLogTable" class="fixed">
+								<thead>
+									<tr>
+										<th>Date/Time
+											<input type="text" name="packetDaterange" style="color: black;" @click="dateFilter('packetDaterange')" placeholder="Search" v-model="dateQueryString"/>
+										</th>
+										<th>Country
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="countryQueryString">
+												<option value="all">All</option>
+												<option v-for="country in countryDropdownArr" v-bind:value="country">{{country}}</option>
+											</select>
+										</th>
+										<th>ASN
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="domainQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th>Protocol
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="protoQueryString">  
+												<option value="all" selected>All</option>
+												<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
+											</select>
+										</th>
+										<th>Source IP
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th>Destination IP
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th><i class="fa fa-arrows-h" aria-hidden="true"></i>
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="directionQueryString">        
+												<option value="all">All</option>
+												<option v-for="direction in directionArr" v-bind:value="direction">{{direction | capitalize}}</option>
+											</select>
+										</th>
+										<th><i class="fa fa-gavel" aria-hidden="true"></i>
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="actionQueryString">        
+												<option value="all" selected>All</option>
+												<option value="denied">Deny</option>
+												<option value="allowed">Allow</option>
+											</select>
+										</th>
+										<th style="width:90px">Category
+											<select style="color:black;width:100%;" v-model="categoryQeryString" @change="getFromQuery($event)">        
+												<option value="all">All</option>
+												<option v-for="category in categoryDropdownArr" v-bind:value="category">{{category}}</option>
+											</select>
+										</th>
+										<th>Reason
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="reasonQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
+											</select>
+										</th>
+										<th>List
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th style="white-space: nowrap;overflow: hidden;">Resource Group
+										<select style="display:block" class="search-dropdown" @change="getFromQuery($event)" v-model="resourceGroupQueryString">        
+												<option value="all">All</option>
+												<option value="outbound">DEFAULT OUTBOUND</option>
+												<option value="inbound">DEFAULT INBOUND</option>
+										</select>
+										</th>
+										<th style="width:100px">Device
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
+											</select>
+										</th>
+									</tr>
+								</thead>
+								<tbody ref="packetTable">
+									<tr v-for="(row, index) in rows" :key="index">
+										<td>{{row._source.timestamp}}</td>
+										<td>{{row._source.Country}}</td>
+										<td>{{row._source.asName}}</td>
+										<td>{{row._source.Proto}}</td>
+										<td>{{row._source.source}}:{{row._source.sourcePort}}</td>
+										<td>{{row._source.destination}}:{{row._source.destinationPort}}</td>
+										<td><div class="background-in" :class="{'background-out': row._source.Direction === 'outbound'}">{{row._source.Direction | capitalize}}</div></td>
+										<td><div class="background-action" :class="{'text-danger': row._source.Action === 'denied'}">{{row._source.Action | capitalize}}</div></td>
+										<td>
+										<span v-if="row._source.denied_categories"><span v-for="category in row._source.denied_categories.split(',')"><li>{{category}}</li></span></span>
+										<span v-if="!row._source.denied_categories && row._source.matched_categories"><span v-for="category in row._source.matched_categories.split(',')"><li>{{category}}</li></span></span>
+										<span v-if="!row._source.denied_categories && !row._source.matched_categories">-</span>
+										</td>
+										<td>{{row._source.reason | capitalize}}</td>
+										<td>
+										<span v-if="!row._source.threatlists && !row._source.whitelists && !row._source.blacklists">-</span>
+										<span v-if="row._source.threatlists" class="list-styles threatlist-background">{{row._source.threatlists}}</span> <br>
+										<span v-if="row._source.whitelists" class="list-styles whitelist-background">{{row._source.whitelists}}</span> <br>
+										<span v-if="row._source.blacklists" class="list-styles blacklist-background">{{row._source.blacklists}}</span>
+										</td>
+										<td>{{row._source.Group}}</td>
+										<td>{{row._source.HName}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</font>
+						</div>
+					</div>
+				</div>
+				
+				
+				<div id="domain" class="tab-pane fade">
+					<div class="row">
+						<div class="col-sm">
+						<font size="3">
+							<table id="logTable" class="fixed">
+								<thead>
+									<tr>
+										<th>Date/Time
+											<input type="text" name="domainDaterange" style="color: black;" @click="dateFilter('domainDaterange')" placeholder="Search" v-model="dateQueryString"/>
+										</th>
+										<th>Domain
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="domainQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th>Protocol
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="protoQueryString">  
+												<option value="all" selected>All</option>
+												<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
+											</select>
+										</th>
+										<th>Source
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th>Destination
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
+										<th><i class="fa fa-gavel" aria-hidden="true"></i>
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="actionQueryString">        
+												<option value="all" selected>All</option>
+												<option value="denied">Deny</option>
+												<option value="allowed">Allow</option>
+											</select>
+										</th>
+										<th>Reason
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="reasonQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
+											</select>
+										</th>
+										<th>Device
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
+											</select>
+										</th>
+									</tr>
+								</thead>
+								<tbody ref="domainTable">
+									<tr v-for="(row, index) in rows" :key="index">
+										<td>{{row._source.timestamp}}</td>
+										<td>{{row._source.Domain}}</td>
+										<td>{{row._source.Proto}}</td>
+										<td>{{row._source.Source}}</td>
+										<td>{{row._source.DST}}</td>
+										<td><div class="background-action" :class="{'text-danger': row._source.Action === 'denied'}">{{row._source.Action | capitalize}}</div></td>
+										<td>{{row._source.Reason | capitalize}}</td>
+										<td>{{row._source.HName}}</td>
+									</tr>
+								</tbody>
+							</table>
+							</font>
+						</div>
+					</div>
+				</div>
+				
+				<div id="system" class="tab-pane fade">
+					<div class="row">
+						<div class="col-sm">
+						<font size="3">
+							<table id="systemLogTable" class="fixed">
+								<thead>
+									<tr>
+										<th>Date/Time
+											<input type="text" name="systemDaterange" style="color: black;" @click="dateFilter('systemDaterange')" placeholder="Search" v-model="dateQueryString"/>
+										</th>
+										<th>Type
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="typeQueryString">  
+												<option value="all" selected>All</option>
+												<option v-for="type in typeDropdownArr" v-bind:value="type">{{type}}</option>
+											</select>
+										</th>
+										<th>Facility
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="facilityQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="facility in facilityDropdownArr" v-bind:value="facility">{{facility}}</option>
+											</select>
+										</th>
+										<th>Priority
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="priorityQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="priority in priorityDropdownArr" v-bind:value="priority">{{priority}}</option>
+											</select>
+										</th>
+										<th style="width:40%">Message
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" placeholder="Search" v-model="messageQueryString"/>
+										</th>
+										<th>Device
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">        
+												<option value="all" selected>All</option>
+												<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
+											</select>
+										</th>
+									</tr>
+								</thead>
+								<tbody ref="systemTable">
+									<tr v-for="(row, index) in rows" :key="index">
+										<td>{{row._source.timestamp}}</td>
+										<td>SYSTEM</td>
+										<td>{{row._source.Facility | capitalize}}</td>
+										<td>
+										<span :class="{'background-in': row._source.Priority == 'info', 'text-danger': row._source.Priority == 'critical', 'background-out': row._source.Priority == 'warning', 'text-danger': row._source.Priority == 'err'}">{{row._source.Priority | capitalize}}</span>
+										</td>
+										<td>{{row._source.Message}}</td>
+										<td>{{row._source.HName}}</td>
+									</tr>
+								</tbody>
+							</table>
+							</font>
+						</div>
+					</div>
+				</div>
+				
+				<div id="audit" class="tab-pane fade">
+					<h3>Audit logs</h3>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<div id="noData" class="container hidden nodata">
+		<label>
+			No Data Available
+		</label>
+    </div>
+</template>
+	 <footer id="footer"></footer>
+</div>
+</div>
+
+   <script src="assets/js/components.js"></script>
+   <script src="assets/js/app.js"></script>
+   
+   <link rel="stylesheet" href="assets/css/styles.css"></link>
+   
+ </body>
+</html>
