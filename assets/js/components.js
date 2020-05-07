@@ -1,11 +1,13 @@
 var esDomainIndex = "logstash-domain";
 var esPacketIndex = "logstash-packet";
 var esSystemIndex = "logstash-system";
+var esAuditIndex = "logstash-audit";
 var serviceApiUrl = location.protocol+"//"+location.hostname+":1468/api";
 var host = location.protocol+"//"+location.hostname+":9200/";
 var esDomainURL = host+esDomainIndex+"/_search";
 var esPacketURL = host+esPacketIndex+"/_search";
 var esSystemURL = host+esSystemIndex+"/_search";
+var esAuditURL = host+esAuditIndex+"/_search";
 var esURL = "";
 var setURL = function (type) {
 	tableData.from=0;
@@ -44,12 +46,18 @@ var setURL = function (type) {
 	  tableData.groupArr=[];
       tableData.rows= [];
 	  tableData.type = type;
+	  tableData.userArr = [];
+	  tableData.moduleQueryString='all';
+	  tableData.actionTypeQueryString='all';
+	  tableData.userTypeQueryString='all';
 	if (type === "domain") {
 		esURL = esDomainURL;
 	} else if (type === "packet") {
 		esURL = esPacketURL;
 	} else if (type === "system") {
 		esURL = esSystemURL;
+	} else if (type === "audit") {
+		esURL = esAuditURL;
 	}
 	getLogs(tableData.from);
 }
@@ -134,7 +142,14 @@ var tableData = new Vue({
 	  directionArr:[],
 	  categoryArr:[],
 	  groupArr:[],
-      rows: []
+      rows: [],
+      moduleDropdownArr:[],
+      auditUsernameArr:[],
+      moduleQueryString:'all',
+	  actionTypeQueryString:'all',
+	  userTypeQueryString:'all',
+	  userArr:[],
+	  auditActionDropdownArr:[]
   },
   //components: {dateRangePicker},
    methods: {
@@ -245,6 +260,9 @@ var tableData = new Vue({
 		tableData.dateRangeObj = {};
 		tableData.sourceIpObj = {};
 		tableData.dstIpObj = {};
+		tableData.moduleQueryString='all',
+		tableData.actionTypeQueryString='all',
+		tableData.userTypeQueryString='all'
 		getLogs(tableData.from);
 	},
 	dateFilter: function (inputName) {
@@ -441,11 +459,7 @@ var tableData = new Vue({
 				} else {
 					tableData.query = tableData.deviceQueryString;
 				}
-				if(tableData.type == "domain") {
-					tableData.fieldsArr.push("HName");
-				} else if (tableData.type == "packet") {
-					tableData.fieldsArr.push("HName");
-				}
+				tableData.fieldsArr.push("HName");
 			}
 			if(tableData.countryQueryString && !tableData.countryQueryString.includes("all")) {
 				if(tableData.query){
@@ -479,6 +493,33 @@ var tableData = new Vue({
 				}
 				tableData.fieldsArr.push("matched_categories");
 				tableData.fieldsArr.push("denied_categories");
+			}
+
+			if(tableData.moduleQueryString && !tableData.moduleQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.moduleQueryString;
+				} else {
+					tableData.query = tableData.moduleQueryString;
+				}
+				tableData.fieldsArr.push("moduleVal");
+			}
+
+			if(tableData.actionTypeQueryString && !tableData.actionTypeQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.actionTypeQueryString;
+				} else {
+					tableData.query = tableData.actionTypeQueryString;
+				}
+				tableData.fieldsArr.push("actionVal");
+			}
+
+			if(tableData.userTypeQueryString && !tableData.userTypeQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.userTypeQueryString;
+				} else {
+					tableData.query = tableData.userTypeQueryString;
+				}
+				tableData.fieldsArr.push("userVal");
 			}
 			/*tableData.query = tableData.dateQueryString+" "+tableData.domainQueryString+" "+tableData.protoQueryString+" "+tableData.sourceQueryString+" "+tableData.destinationQueryString+" "+tableData.actionQueryString+" "+tableData.reasonQueryString+" "+tableData.deviceQueryString;*/
 			//tableData.query = tableData.query.replace(/ /g,"")
@@ -544,7 +585,7 @@ var tableData = new Vue({
 				};
 			}
 		}
-		
+
 		var url = esURL+"?size="+tableData.pageSize+"&pretty=true";
 		$.ajax({
 			url: url,
@@ -565,7 +606,6 @@ var tableData = new Vue({
 				setDataArrays(tableData.rows);
 			}
 		});
-		
 	},
 	nextPage: function () {
 		tableData.from = tableData.pageSize+tableData.from;
@@ -643,6 +683,18 @@ var tableData = new Vue({
 					"priority":tableData.rows[row]._source.Priority,
 					"message":tableData.rows[row]._source.Message,
 					"hostName":tableData.rows[row]._source.HName
+				}
+				obj.push(rowObj);
+			}
+		} else if (tableData.type === 'audit') {
+			for (var row in tableData.rows) {
+				var rowObj = {
+					"timestamp":tableData.rows[row]._source.timestamp,
+					"Module":tableData.rows[row]._source.moduleVal,
+					"Action":tableData.rows[row]._source.actionVal,
+					"User":tableData.rows[row]._source.userVal,
+					"HName":tableData.rows[row]._source.HName,
+					"Message":tableData.rows[row]._source.message
 				}
 				obj.push(rowObj);
 			}
@@ -797,6 +849,12 @@ var setDataArrays = function(data) {
 		if(!tableData.deviceArr.includes(data[i]._source.HName)){
 			tableData.deviceArr.push(data[i]._source.HName);
 		}
+		if(!tableData.userArr.includes(data[i]._source.userVal)){
+			tableData.userArr.push(data[i]._source.userVal);
+		}
+		// if(!tableData.auditActionDropdownArr.includes(data[i]._source.actionVal)){
+		// 	tableData.auditActionDropdownArr.push(data[i]._source.actionVal);
+		// }
 		if(data[i]._source.Country){
 			var country = data[i]._source.Country.replace(/"/g, "");
 			tableData.rows[i]._source.Country = country;
@@ -1063,3 +1121,6 @@ tableData.facilityDropdownArr = ["KERNEL","USER","MAIL","DAEMON","AUTH","SYSLOG"
 
 tableData.priorityDropdownArr = ["EMERGENCY","ALERT","CRITICAL","ERROR","WARNING","NOTICE","INFO","DEBUG"];
 
+tableData.moduleDropdownArr = ["ALERTS","HTTP","SOFTWARE","LICENSE","LOGGING","NETWORK","NTP","POLICY","RESOURCE","SETTINGS","SYSTEM","USER","SNMP","SMTP"];
+
+tableData.auditActionDropdownArr = ["CREATE", "UPDATE", "DELETE"];
