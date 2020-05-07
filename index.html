@@ -532,10 +532,10 @@
 								<thead>
 									<tr>
 										<th>Date/Time
-											<input type="text" name="systemDaterange" style="color: black;" @click="dateFilter('systemDaterange')" placeholder="Search" v-model="dateQueryString"/>
+											<input type="text" name="auditDaterange" style="color: black;" @click="dateFilter('auditDaterange')" placeholder="Search" v-model="dateQueryString"/>
 										</th>
 										<th>Module
-											<select class="search-dropdown" @change="getFromQuery($event)" v-model="typeQueryString">
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="moduleQueryString">
 												<option value="all" selected>All</option>
 												<option v-for="module in moduleDropdownArr" v-bind:value="module">{{module}}</option>
 											</select>
@@ -552,14 +552,14 @@
 												<option v-for="user in userArr" v-bind:value="user">{{user}}</option>
 											</select>
 										</th>
+										<th style="width:40%">Message
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" placeholder="Search" v-model="messageQueryString"/>
+										</th>
 										<th>Device
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">
 												<option value="all" selected>All</option>
 												<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
 											</select>
-										</th>
-										<th style="width:40%">Message
-											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" placeholder="Search" v-model="messageQueryString"/>
 										</th>
 									</tr>
 								</thead>
@@ -567,10 +567,10 @@
 									<tr v-for="(row, index) in rows" :key="index">
 										<td>{{row._source.timestamp}}</td>
 										<td>{{row._source.moduleVal}}</td>
-										<td><span class="background-action" :class="{'background-out': row._source.actionVal == 'UPDATE', 'text-danger': row._source.actionVal == 'DETETE'}">{{row._source.actionVal}}</span></td>
+										<td><span class="background-action" :class="{'background-out': row._source.actionVal == 'UPDATE', 'text-danger': row._source.actionVal === 'DELETE'}">{{row._source.actionVal}}</span></td>
 										<td>{{row._source.userVal | capitalize}}</td>
-										<td>{{row._source.HName}}</td>
 										<td>{{row._source.Message}}</td>
+										<td>{{row._source.HName}}</td>
 									</tr>
 								</tbody>
 							</table>

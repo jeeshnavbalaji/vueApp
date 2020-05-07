@@ -47,7 +47,6 @@ var setURL = function (type) {
       tableData.rows= [];
 	  tableData.type = type;
 	  tableData.userArr = [];
-	  tableData.auditActionDropdownArr = [];
 	  tableData.moduleQueryString='all';
 	  tableData.actionTypeQueryString='all';
 	  tableData.userTypeQueryString='all';
@@ -263,7 +262,7 @@ var tableData = new Vue({
 		tableData.dstIpObj = {};
 		tableData.moduleQueryString='all',
 		tableData.actionTypeQueryString='all',
-		tableData.userTypeQueryString='all',
+		tableData.userTypeQueryString='all'
 		getLogs(tableData.from);
 	},
 	dateFilter: function (inputName) {
@@ -460,11 +459,7 @@ var tableData = new Vue({
 				} else {
 					tableData.query = tableData.deviceQueryString;
 				}
-				if(tableData.type == "domain") {
-					tableData.fieldsArr.push("HName");
-				} else if (tableData.type == "packet") {
-					tableData.fieldsArr.push("HName");
-				}
+				tableData.fieldsArr.push("HName");
 			}
 			if(tableData.countryQueryString && !tableData.countryQueryString.includes("all")) {
 				if(tableData.query){
@@ -499,6 +494,33 @@ var tableData = new Vue({
 				tableData.fieldsArr.push("matched_categories");
 				tableData.fieldsArr.push("denied_categories");
 			}
+
+			if(tableData.moduleQueryString && !tableData.moduleQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.moduleQueryString;
+				} else {
+					tableData.query = tableData.moduleQueryString;
+				}
+				tableData.fieldsArr.push("moduleVal");
+			}
+
+			if(tableData.actionTypeQueryString && !tableData.actionTypeQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.actionTypeQueryString;
+				} else {
+					tableData.query = tableData.actionTypeQueryString;
+				}
+				tableData.fieldsArr.push("actionVal");
+			}
+
+			if(tableData.userTypeQueryString && !tableData.userTypeQueryString.includes("all")) {
+				if(tableData.query){
+					tableData.query = tableData.query+" AND "+tableData.userTypeQueryString;
+				} else {
+					tableData.query = tableData.userTypeQueryString;
+				}
+				tableData.fieldsArr.push("userVal");
+			}
 			/*tableData.query = tableData.dateQueryString+" "+tableData.domainQueryString+" "+tableData.protoQueryString+" "+tableData.sourceQueryString+" "+tableData.destinationQueryString+" "+tableData.actionQueryString+" "+tableData.reasonQueryString+" "+tableData.deviceQueryString;*/
 			//tableData.query = tableData.query.replace(/ /g,"")
 			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString) {
@@ -517,34 +539,6 @@ var tableData = new Vue({
 					console.log(error);
 				});*/
 			}
-
-			if(tableData.moduleQueryString && !tableData.moduleQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.moduleQueryString;
-				} else {
-					tableData.query = tableData.moduleQueryString;
-				}
-				tableData.fieldsArr.push("Module");
-			}
-
-			if(tableData.actionTypeQueryString && !tableData.actionTypeQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.actionTypeQueryString;
-				} else {
-					tableData.query = tableData.actionTypeQueryString;
-				}
-				tableData.fieldsArr.push("Action");
-			}
-
-			if(tableData.userTypeQueryString && !tableData.userTypeQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.userTypeQueryString;
-				} else {
-					tableData.query = tableData.userTypeQueryString;
-				}
-				tableData.fieldsArr.push("User");
-			}
-
     },
 	getRrecentOrOldDocs: function (sortType) {
 		var dataToBeSent = {};
@@ -591,7 +585,7 @@ var tableData = new Vue({
 				};
 			}
 		}
-		
+
 		var url = esURL+"?size="+tableData.pageSize+"&pretty=true";
 		$.ajax({
 			url: url,
@@ -612,7 +606,6 @@ var tableData = new Vue({
 				setDataArrays(tableData.rows);
 			}
 		});
-		
 	},
 	nextPage: function () {
 		tableData.from = tableData.pageSize+tableData.from;
@@ -859,9 +852,9 @@ var setDataArrays = function(data) {
 		if(!tableData.userArr.includes(data[i]._source.userVal)){
 			tableData.userArr.push(data[i]._source.userVal);
 		}
-		if(!tableData.auditActionDropdownArr.includes(data[i]._source.actionVal)){
-			tableData.auditActionDropdownArr.push(data[i]._source.actionVal);
-		}
+		// if(!tableData.auditActionDropdownArr.includes(data[i]._source.actionVal)){
+		// 	tableData.auditActionDropdownArr.push(data[i]._source.actionVal);
+		// }
 		if(data[i]._source.Country){
 			var country = data[i]._source.Country.replace(/"/g, "");
 			tableData.rows[i]._source.Country = country;
@@ -1130,4 +1123,4 @@ tableData.priorityDropdownArr = ["EMERGENCY","ALERT","CRITICAL","ERROR","WARNING
 
 tableData.moduleDropdownArr = ["ALERTS","HTTP","SOFTWARE","LICENSE","LOGGING","NETWORK","NTP","POLICY","RESOURCE","SETTINGS","SYSTEM","USER","SNMP","SMTP"];
 
-//tableData.auditActionDropdownArr = ["CREATE", "UPDATE", "DELETE"]
+tableData.auditActionDropdownArr = ["CREATE", "UPDATE", "DELETE"];
