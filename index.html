@@ -535,7 +535,7 @@
 											<input type="text" name="systemDaterange" style="color: black;" @click="dateFilter('systemDaterange')" placeholder="Search" v-model="dateQueryString"/>
 										</th>
 										<th>Module
-											<select class="search-dropdown" @change="getFromQuery($event)" v-model="moduleQueryString">
+											<select class="search-dropdown" @change="getFromQuery($event)" v-model="typeQueryString">
 												<option value="all" selected>All</option>
 												<option v-for="module in moduleDropdownArr" v-bind:value="module">{{module}}</option>
 											</select>

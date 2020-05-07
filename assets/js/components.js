@@ -148,7 +148,9 @@ var tableData = new Vue({
       auditUsernameArr:[],
       moduleQueryString:'all',
 	  actionTypeQueryString:'all',
-	  userTypeQueryString:'all'
+	  userTypeQueryString:'all',
+	  userArr:[],
+	  auditActionDropdownArr:[]
   },
   //components: {dateRangePicker},
    methods: {
@@ -522,7 +524,7 @@ var tableData = new Vue({
 				} else {
 					tableData.query = tableData.moduleQueryString;
 				}
-				tableData.fieldsArr.push("moduleVal");
+				tableData.fieldsArr.push("Module");
 			}
 
 			if(tableData.actionTypeQueryString && !tableData.actionTypeQueryString.includes("all")) {
@@ -531,7 +533,7 @@ var tableData = new Vue({
 				} else {
 					tableData.query = tableData.actionTypeQueryString;
 				}
-				tableData.fieldsArr.push("actionVal");
+				tableData.fieldsArr.push("Action");
 			}
 
 			if(tableData.userTypeQueryString && !tableData.userTypeQueryString.includes("all")) {
@@ -540,7 +542,7 @@ var tableData = new Vue({
 				} else {
 					tableData.query = tableData.userTypeQueryString;
 				}
-				tableData.fieldsArr.push("userVal");
+				tableData.fieldsArr.push("User");
 			}
 
     },
