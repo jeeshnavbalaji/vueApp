@@ -112,8 +112,8 @@
 			<input type="checkbox" id="emailAlertCheckAll" v-model="emailAlertChecked"> <label>Include All Log Information</label><br>
 			<div>
 				<ul class="nav nav-tabs">
-						<li class="active"><a data-toggle="tab" href="#emailAlertPacket">Packet</a></li>
-						<li><a data-toggle="tab" href="#emailAlertDomain">Domain</a></li>
+						<li class="active"><a data-toggle="tab" href="#emailAlertPacket" @click="emailAlertFieldSelectPrompt('packet','domain')">Packet</a></li>
+						<li><a data-toggle="tab" href="#emailAlertDomain" @click="emailAlertFieldSelectPrompt('domain','packet')">Domain</a></li>
 				</ul>
 				<div class="tab-content ">
 					<div id="emailAlertPacket" class="tab-pane fade in active" style="margin:20px" :disabled="emailAlertChecked == 'true'">
@@ -121,6 +121,7 @@
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">COUNTRY</label>
 								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketCountry">
+									<option selected>Select Country</option>
 									<option value="all">All</option>
 									<option v-for="country in countryDropdownArr" v-bind:value="country">{{country}}</option>
 								</select>
@@ -133,7 +134,8 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">PROTOCOL</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketProtocol">  
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketProtocol">
+									<option selected>Select Protocol</option>
 									<option value="all" selected>All</option>
 									<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
 								</select>
@@ -150,7 +152,8 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">DIRECTION</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDirection">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDirection">
+									<option selected>Select Direction</option>
 									<option value="all">All</option>
 									<option v-for="direction in directionArr" v-bind:value="direction">{{direction | capitalize}}</option>
 								</select>
@@ -159,7 +162,8 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">ACTION</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketAction">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketAction">
+									<option selected>Select Action</option>
 									<option value="all">All</option>
 									<option value="denied">Deny</option>
 									<option value="allowed">Allow</option>
@@ -167,7 +171,8 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">CATEGORY</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketCategory">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketCategory">
+									<option selected>Select Category</option>
 									<option value="all">All</option>
 									<option v-for="category in categoryDropdownArr" v-bind:value="category">{{category}}</option>
 								</select>
@@ -176,7 +181,8 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">REASON</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketReason">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketReason">
+									<option selected>Select Reason</option>
 									<option value="all" selected>All</option>
 									<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
 								</select>
@@ -189,7 +195,8 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">RESOURCE GROUP</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketResourceGroup">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketResourceGroup">
+									<option selected>Select Resource Group</option>
 									<option value="all">All</option>
 									<option value="outbound">DEFAULT OUTBOUND</option>
 									<option value="inbound">DEFAULT INBOUND</option>
@@ -197,7 +204,8 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">DEVICE</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDevice">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertPacketDevice">
+									<option selected>Select Device</option>
 									<option value="all" selected>All</option>
 									<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
 								</select>
@@ -212,7 +220,8 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">PROTOCOL</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainProtocol">  
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainProtocol">
+									<option selected>Select Protocol</option>
 									<option value="all" selected>All</option>
 									<option v-for="proto in protocolDropdownArr" v-bind:value="proto">{{proto}}</option>
 								</select>
@@ -231,7 +240,8 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">ACTION</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainAction">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainAction">
+									<option selected>Select Action</option>
 									<option value="all" selected>All</option>
 									<option value="denied">Deny</option>
 									<option value="allowed">Allow</option>
@@ -239,9 +249,20 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">REASON</label>
-								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainReason">        
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainReason">
+									<option selected>Select Reason</option>
 									<option value="all" selected>All</option>
 									<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="row emailAlertRowMargin">
+							<div class="col-sm-6">
+								<label class="emailAlertTabFields">DEVICE</label>
+								<select class="form-control emailAlertFieldsDropdown" v-model="emailAlertDomainDevice"> 
+									<option selected>Select Device</option>
+									<option value="all" selected>All</option>
+									<option v-for="device in deviceArr" v-bind:value="device">{{device}}</option>
 								</select>
 							</div>
 						</div>
@@ -250,7 +271,42 @@
 			</div>
 			<span class="emailAlertButtonsPosition">
 				<button type="button" class="btn btn-success" @click="saveEmailAlert();">Save</button>
+				<button type="button" class="btn btn-warning" @click="editEmailAlert();">Edit</button>
 				<button type="button" class="btn btn-light" @click="emailAlertCancle();">Cancel</button>
+			</span>
+		</div>
+	</section>
+	<section>
+		<div class="container hidden" id="editEmailAlert">
+			<h3 style="color: blue;">E-mail Alerts</h3><br>
+			<p>Add,edit and delete email subscription and email alerts for a distribution list on the Email Alert Page</p>
+
+			<font size="4">
+				<table style="width:100%">
+					<thead>
+						<tr>
+							<th>ACTIONS</th>
+							<th>ALERT FORMAT</th>
+							<th>EMAIL ID</th>
+							<th>ALERT SCHEDULE</th>
+							
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(row, index) in emailRows" :key="index">
+							<td style="text-align:center;">
+								<i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:large;" @click="edit_page_email_alert(row)"></i>
+								<i class="fa fa-times" aria-hidden="true" style="font-size:large;color:red;" @click="delete_email_alert(row.pk)"></i>
+							</td>
+							<td>{{row.fields.file_format}}</td>
+							<td>{{row.fields.email}}</td>
+							<td>{{row.fields.send_log | capitalize}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</font>
+			<span class="emailAlertButtonsPosition">
+				<button type="button" class="btn btn-light" @click="editEmailAlertCancle();">Cancel</button>
 			</span>
 		</div>
 	</section>

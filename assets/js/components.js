@@ -97,29 +97,31 @@ var tableData = new Vue({
 	  type:'',
 	  query:'',
 	  emailAlertArray:'',
-	  emailAlertSendLog:'',
+	  emailAlertSendLog:'daily',
 	  emailAlertdayOfWeek:'',
 	  emailAlertTime:'',
 	  emailAlertFileFormat:'csv',
 	  emailAlertChecked:'',
-	  emailAlertPacketCountry:'all',
+	  emailAlertPacketCountry:'Select Country',
 	  emailAlertPacketASN:'',
-	  emailAlertPacketProtocol:'all',
+	  emailAlertPacketProtocol:'Select Protocol',
 	  emailAlertPacketSource:'',
 	  emailAlertPacketDestination:'',
-	  emailAlertPacketDirection:'all',
-	  emailAlertPacketAction:'all',
-	  emailAlertPacketCategory:'all',
-	  emailAlertPacketReason:'all',
+	  emailAlertPacketDirection:'Select Direction',
+	  emailAlertPacketAction:'Select Action',
+	  emailAlertPacketCategory:'Select Category',
+	  emailAlertPacketReason:'Select Reason',
 	  emailAlertPacketList:'',
-	  emailAlertPacketResourceGroup:'all',
-	  emailAlertPacketDevice:'all',
+	  emailAlertPacketResourceGroup:'Select Resource Group',
+	  emailAlertPacketDevice:'Select Device',
 	  emailAlertDomainDomain:'',
-	  emailAlertDomainProtocol:'all',
+	  emailAlertDomainProtocol:'Select Protocol',
 	  emailAlertDomainSource:'',
 	  emailAlertDomainDestination:'',
-	  emailAlertDomainAction:'all',
-	  emailAlertDomainReason:'all',
+	  emailAlertDomainAction:'Select Action',
+	  emailAlertDomainReason:'Select Reason',
+	  emailAlertDomainDevice:'Select Device',
+	  emailAlertTabName: 'packet',
 	  dateRangeObj: {},
 	  sourceIpObj: {},
 	  dstIpObj: {},
@@ -149,7 +151,9 @@ var tableData = new Vue({
 	  actionTypeQueryString:'all',
 	  userTypeQueryString:'all',
 	  userArr:[],
-	  auditActionDropdownArr:[]
+	  auditActionDropdownArr:[],
+	  emailRows: [],
+	  editable: false
   },
   //components: {dateRangePicker},
    methods: {
@@ -186,6 +190,8 @@ var tableData = new Vue({
 			$('#content').addClass('hidden');
 				$('#logout').addClass('hidden');
 			$('#login').removeClass('hidden');
+			$('#editEmailAlert').addClass('hidden');
+			$('#emailAlert').addClass('hidden');
 			window.localStorage.removeItem('token');
 	},
 	setEmailAlert: function (){
@@ -198,9 +204,26 @@ var tableData = new Vue({
 		$('#content').removeClass('hidden');
 		$('#emailAlert').addClass('hidden');
 	},
+	editEmailAlertCancle: function (){
+		$('#emailAlert').removeClass('hidden');
+		$('#editEmailAlert').addClass('hidden');
+	},
+	emailAlertFieldSelectPrompt: function (actualType,type){
+		if(isEmailFieldSelected(getLogObject(type))) {
+			alert('Selected '+type+' filds are not saved');
+		}
+		resetEmailAlertData();
+		tableData.emailAlertTabName = actualType;
+	},
 	saveEmailAlert: function (){
-		var packetFieldsObject = getLogObject('packet');
-		var domainFieldsObject = getLogObject('domain');
+		if(tableData.emailAlertChecked) {
+			tableData.emailAlertTabName = 'packet';
+		}
+		if(tableData.emailAlertTabName == 'packet' && !tableData.emailAlertTabName) {
+			var packetFieldsObject = getLogObject('packet');
+		} else if(tableData.emailAlertTabName == 'domain') {
+			var domainFieldsObject = getLogObject('domain');
+		}
 		var emailArray = tableData.emailAlertArray.split(",");
 		var dataObject = {
 			"email": emailArray,
@@ -210,7 +233,8 @@ var tableData = new Vue({
 			"fileFormat": tableData.emailAlertFileFormat,
 			"includeAll": tableData.emailAlertChecked,
 			"domain": domainFieldsObject,
-			"packet": packetFieldsObject
+			"packet": packetFieldsObject,
+			"logType": tableData.emailAlertTabName
 		};
 		$.ajax({
 			url: serviceApiUrl+"/emailalert",
@@ -227,6 +251,67 @@ var tableData = new Vue({
 				});
 				$('#content').removeClass('hidden');
 				$('#emailAlert').addClass('hidden');
+			},
+			error: function (request, status, error) {
+				$.growl.warning({
+					message:"Something went wrong! "+error
+				});
+			}
+		});
+	},
+	editEmailAlert: function (){
+		var editUrl = serviceApiUrl+"/editemailalert"
+		$.ajax({
+			url: editUrl,
+			type: 'get',
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			success: function (data) {
+				tableData.emailRows = data;
+				$('#editEmailAlert').removeClass('hidden');
+				$('#emailAlert').addClass('hidden');
+			},
+			error: function (request, status, error) {
+				$.growl.warning({
+					message:"Something went wrong! "+error
+				});
+			}
+		});
+	},
+	edit_page_email_alert: function (emailAlertObj) {
+		$('#editEmailAlert').addClass('hidden');
+		$('#emailAlert').removeClass('hidden');
+		tableData.emailAlertArray = emailAlertObj.fields.email
+		tableData.emailAlertSendLog = emailAlertObj.fields.send_log
+		tableData.emailAlertTime = emailAlertObj.fields.time
+		tableData.emailAlertFileFormat = emailAlertObj.fields.file_format
+		tableData.emailAlertChecked = emailAlertObj.fields.include_all
+		tableData.emailAlertdayOfWeek = emailAlertObj.fields.day_of_week
+		if(emailAlertObj.fields.log_type === 'packet') {
+			
+		}
+	},
+	delete_email_alert: function (id){
+		var url = serviceApiUrl+"/deleteemailalert"
+		dataObject = {
+			"id": id
+		}
+		$.ajax({
+			url: url,
+			type: 'delete',
+			data: JSON.stringify(dataObject),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			success: function (data) {
+				tableData.emailRows = data;
+				$.growl({
+					title: "Success",
+					message:"Email alert deleted"
+		});
 			},
 			error: function (request, status, error) {
 				$.growl.warning({
@@ -1027,37 +1112,49 @@ var getLogObject = function (type) {
 					"destination":tableData.emailAlertDomainDestination,
 					"action":tableData.emailAlertDomainAction,
 					"reason":tableData.emailAlertDomainReason,
-					//"hostName":tableData.rows[row]._source.HName
+					"hostName": tableData.emailAlertDomainDevice
 				}
 		return domainObj;
 	}
 }
 
+var isEmailFieldSelected = function (obj) {
+	var valueArray = Object.values(obj);
+	for (var index in valueArray){
+		if(!valueArray[index].includes('Select') && valueArray[index]) {
+			return true;
+		}
+	}
+	return false;
+}
+
 var resetEmailAlertData = function () {
 	  tableData.emailAlertArray='';
-	  tableData.emailAlertSendLog='';
+	  tableData.emailAlertSendLog='daily';
 	  tableData.emailAlertdayOfWeek='';
 	  tableData.emailAlertTime='';
 	  tableData.emailAlertFileFormat='csv';
 	  tableData.emailAlertChecked='';
-	  tableData.emailAlertPacketCountry='all';
+	  tableData.emailAlertPacketCountry='Select Country';
 	  tableData.emailAlertPacketASN='';
-	  tableData.emailAlertPacketProtocol='all';
+	  tableData.emailAlertPacketProtocol='Select Protocol';
 	  tableData.emailAlertPacketSource='';
 	  tableData.emailAlertPacketDestination='';
-	  tableData.emailAlertPacketDirection='all';
-	  tableData.emailAlertPacketAction='all';
-	  tableData.emailAlertPacketCategory='all';
-	  tableData.emailAlertPacketReason='all';
+	  tableData.emailAlertPacketDirection='Select Direction';
+	  tableData.emailAlertPacketAction='Select Action';
+	  tableData.emailAlertPacketCategory='Select Category';
+	  tableData.emailAlertPacketReason='Select Reason';
 	  tableData.emailAlertPacketList='';
-	  tableData.emailAlertPacketResourceGroup='all';
-	  tableData.emailAlertPacketDevice='all';
+	  tableData.emailAlertPacketResourceGroup='Select Resource Group';
+	  tableData.emailAlertPacketDevice='Select Device';
 	  tableData.emailAlertDomainDomain='';
-	  tableData.emailAlertDomainProtocol='all';
+	  tableData.emailAlertDomainProtocol='Select Protocol';
 	  tableData.emailAlertDomainSource='';
 	  tableData.emailAlertDomainDestination='';
-	  tableData.emailAlertDomainAction='all';
-	  tableData.emailAlertDomainReason='all';
+	  tableData.emailAlertDomainAction='Select Action';
+	  tableData.emailAlertDomainReason='Select Reason';
+	  tableData.emailAlertDomainDevice='Select Device';
+	  tableData.emailAlertTabName = 'packet';
 }
 
 /*$('input[name="daterange"]').daterangepicker({
@@ -1113,7 +1210,7 @@ tableData.protocolDropdownArr = ["ICMP","IGMP","GGP","4","ST","TCP","CBT","EGP",
 
 tableData.categoryDropdownArr = ["Command and Control","Botnet","Spam","Scanner","Endpoint_Exploit","Web_Exploit","Drop_Site","Proxy / VPN","DDOS","Compromised","Fraudulent_Activity","Illegal_Activity","Undesirable_Activity","PP_Node","Online_Gaming","Remote_Access_Server","TOR / Anonymizer"];
 
-tableData.reasonDropdownArr = ["POLICY","COUNTRY","ASN","BLACKLISTS","WHITELISTS","THREATLISTS","FLOW"];
+tableData.reasonDropdownArr = ["POLICY","COUNTRY","ASN","BLACKLIST","WHITELIST","THREATLIST","FLOW"];
 
 tableData.typeDropdownArr = ["SUPPRESSED","KERNEL","SYSTEM","CMD","FSM","ENG","FSMG","APACHE_ACCESS","APACHE_ERROR"];
 
