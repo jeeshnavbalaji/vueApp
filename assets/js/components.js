@@ -903,8 +903,22 @@ var getLogs = function(from) {
 	
 }
 
-var setDataArrays = function(data) {
-	for(var i=0; i<data.length; i++) {
+var setDataArrays = function(dataRows) {
+	for (var i=0; i<dataRows.length; i++) {
+		tableData.timestampArr.push(dataRows[i]._source.timestamp);
+		var timestamp = getTimeStamp(dataRows[i]._source.timestamp, "UTC");
+		tableData.rows[i]._source.timestamp = timestamp;
+		if(dataRows[i]._source.Country){
+			var country = dataRows[i]._source.Country.replace(/"/g, "");
+			tableData.rows[i]._source.Country = country;
+			if(!tableData.countryArr.includes(country)) {
+				tableData.countryArr.push(country);
+			}
+		}
+	}
+	$.getJSON(esURL+"?size=10000&pretty=true").then(result => {
+			data = result.hits.hits;
+		for(var i=0; i<data.length; i++) {
 		if(!tableData.protocolArr.includes(data[i]._source.Proto)) {
 			tableData.protocolArr.push(data[i]._source.Proto);
 		}
@@ -940,21 +954,14 @@ var setDataArrays = function(data) {
 		// if(!tableData.auditActionDropdownArr.includes(data[i]._source.actionVal)){
 		// 	tableData.auditActionDropdownArr.push(data[i]._source.actionVal);
 		// }
-		if(data[i]._source.Country){
-			var country = data[i]._source.Country.replace(/"/g, "");
-			tableData.rows[i]._source.Country = country;
-			if(!tableData.countryArr.includes(country)) {
-				tableData.countryArr.push(country);
-			}
-		}
 		if(!tableData.directionArr.includes(data[i]._source.Direction)) {
 			tableData.directionArr.push(data[i]._source.Direction);
 		}
-		tableData.timestampArr.push(data[i]._source.timestamp);
-		var timestamp = getTimeStamp(data[i]._source.timestamp, "UTC");
-		tableData.rows[i]._source.timestamp = timestamp;
-	};
-	removeSpecialChars(data);
+		}
+		}, error => {
+			console.log(error);
+		});
+	removeSpecialChars(dataRows);
 }
 
 var removeSpecialChars = function(data) {
