@@ -9,6 +9,7 @@ var esPacketURL = host+esPacketIndex+"/_search";
 var esSystemURL = host+esSystemIndex+"/_search";
 var esAuditURL = host+esAuditIndex+"/_search";
 var esURL = "";
+var GMCUrl = "https://gmc.banduracyber.com/api/v1"
 var setURL = function (type) {
 	tableData.from=0;
 	  tableData.pageSize= 20;
@@ -153,10 +154,65 @@ var tableData = new Vue({
 	  userArr:[],
 	  auditActionDropdownArr:[],
 	  emailRows: [],
-	  editable: false
+	  editable: false,
+	  countryPolicyList:[],
+	  countryList: [],
+	  allCountryList:[],
+	  countryCode:'',
+	  sourceList: [
+		{
+			text: 'Whitelist',
+			children: [
+				{
+					text: 'Group1',
+				},
+				{
+					text: 'Group2',
+				}
+			]
+		},
+		{
+			text: 'Blacklist',
+			children: [
+				{
+					text: 'Group1',
+				},
+				{
+					text: 'Group2',
+				}
+			]
+		},
+		
+	]
   },
   //components: {dateRangePicker},
    methods: {
+	   addCountryToAllowedOrDenied: function(indexList){
+		var policyObj = {}
+		var type = '';
+		policyName = tableData.countryList[indexList[0]].text;
+		for(i in tableData.countryPolicyList) {
+			if(Object.values(tableData.countryPolicyList[i]).includes(policyName)){
+				policyObj = tableData.countryPolicyList[i]
+			}
+		}
+		console.log("inside test->"+policyObj+", policy uuid->"+policyObj.uuid);
+		console.log("inside test->"+tableData.countryCode);
+		if(indexList[0,1] == 0){
+			type = "allowed";
+		} else if(indexList[0,1] == 1){
+			type = "denied";
+		}
+		countryAllowedOrDenied(policyObj.uuid, tableData.countryCode, type)
+    },
+	setCountryCode: function(country){
+		for(i in tableData.allCountryList){
+			if(Object.values(tableData.allCountryList[i]).includes(country)) {
+				tableData.countryCode = tableData.allCountryList[i].code;
+			}
+		}
+		console.log("inside setCountryCode->"+tableData.countryCode);
+	},
 	login: function () {
 		dataToBeSent = {
 					"username":tableData.uname,
@@ -179,6 +235,8 @@ var tableData = new Vue({
 			$('#logout').removeClass('hidden');
 			$('#lblLoginErrMsg').addClass('hidden');
 			setURL("packet");
+			getPolicies();
+			getAllCountries();
 			},
 			error: function (request, status, error) {
 				console.log(status);
@@ -1164,6 +1222,89 @@ var resetEmailAlertData = function () {
 	  tableData.emailAlertTabName = 'packet';
 }
 
+var getPolicies = function () {
+	dataToBeSent = {
+		"policy": "policy"
+	}
+	internalServiceGetData(dataToBeSent);
+}
+
+var getAllCountries = function () {
+	dataToBeSent = {
+		"country": "country"
+	}
+	internalServiceGetData(dataToBeSent);
+}
+
+var internalServiceGetData = function (dataToBeSent) {
+	$.ajax({
+			url: serviceApiUrl+"/getfromgmc",
+			type: 'post',
+			data: JSON.stringify(dataToBeSent),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			dataType: 'json',
+			success: function (data) {
+				console.log('policy data-> '+data);
+				if(dataToBeSent.hasOwnProperty('policy')){
+					tableData.countryPolicyList = data;
+					for(var i in tableData.countryPolicyList) {
+						countryListObj = {
+							text: tableData.countryPolicyList[i].name,
+							children: [
+								{
+									text: 'Allow',
+								},
+								{
+									text: 'Deny'
+								}
+							]
+						}
+						tableData.countryList.push(countryListObj)
+					}
+					console.log('country policy list->'+tableData.countryList)
+				}
+				if(dataToBeSent.hasOwnProperty('country')) {
+					tableData.allCountryList = data;
+				}
+
+			},
+			error: function (request, status, error) {
+				console.log(status);
+			}
+		});
+}
+
+var countryAllowedOrDenied = function (policyId, countryCode, type) {
+	dataToBeSent = {
+		"policy_uuid": policyId,
+		"country_code": countryCode,
+		"type": type
+	}
+	$.ajax({
+			url: serviceApiUrl+"/countryallowordeny",
+			type: 'post',
+			data: JSON.stringify(dataToBeSent),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			dataType: 'json',
+			success: function (data) {
+				console.log('policy data-> '+data);
+				$.growl({
+					title: "Success",
+					message:"Country added to "+type
+				});
+			},
+			error: function (request, status, error) {
+				console.log(status);
+			}
+		});
+}
+
 /*$('input[name="daterange"]').daterangepicker({
         startDate: moment(),
         endDate: moment(),
@@ -1206,7 +1347,6 @@ $(function() {
   });
 
 });
-
 
 
 tableData.timezoneArr = ["America/Adak", "America/Anchorage","America/Anguilla","America/Aruba","America/Atikokan","America/Barbados","America/Belize","America/Blanc-Sablon","America/Boise","America/Cambridge_Bay","America/Cancun","America/Cayenne","America/Cayman","America/Chicago","America/Chihuahua","America/Costa_Rica","America/Creston","America/Danmarkshavn","America/Dawson","America/Dawson_Creek","America/Denver","America/Detroit","America/Edmonton","America/Fort_Nelson","America/Glace_Bay","America/Godthab","America/Goose_Bay","America/Grenada","America/Guadeloupe","America/Guatemala","America/Guyana","America/Halifax"," America/Hermosillo","America/Indiana/Indianapolis","America/Indiana/Knox","America/Indiana/Marengo","America/Indiana/Petersburg","America/Indiana/Tell_City"," America/Indiana/Vevay","America/Indiana/Vincennes","America/Indiana/Winamac","America/Inuvik","America/Iqaluit","America/Jamaica","America/Juneau"," America/Kentucky/Louisville"," America/Kentucky/Monticello","America/Los_Angeles","America/Lower_Princes","America/Matamoros","America/Mazatlan"," America/Menominee"," America/Merida"," America/Metlakatla"," America/Mexico_City"," America/Moncton"," America/Monterrey"," America/Montevideo"," America/Nassau","America/New_York"," America/Nipigon"," America/Nome","America/North_Dakota/Beulah","America/North_Dakota/Center","America/North_Dakota/New_Salem","America/Ojinaga","America/Panama"," America/Pangnirtung","America/Phoenix","America/Port-au-Prince","America/Puerto_Rico","America/Rainy_River","America/Rankin_Inlet","America/Regina","America/Resolute","America/Scoresbysund","America/Sitka","America/St_Johns"," America/St_Thomas","America/Swift_Current","America/Tegucigalpa","America/Thule","America/Thunder_Bay","America/Tijuana","America/Toronto","America/Vancouver","America/Whitehorse","America/Winnipeg","America/Yakutat","America/Yellowknife","Atlantic/Bermuda","Atlantic/Cape_Verde","Atlantic/Faroe","Atlantic/Reykjavik","Atlantic/Stanley","Australia/Adelaide","Australia/Brisbane","Australia/Broken_Hill","Australia/Currie","Australia/Darwin","Australia/Eucla","Australia/Hobart","Australia/Lindeman","Australia/Lord_Howe","Australia/Melbourne","Australia/Perth","Australia/Sydney","Europe/Amsterdam","Europe/Andorra","Europe/Astrakhan","Europe/Athens","Europe/Belgrade","Europe/Berlin","Europe/Bratislava","Europe/Brussels","Europe/Bucharest","Europe/Budapest","Europe/Busingen","Europe/Chisinau","Europe/Copenhagen","Europe/Dublin","Europe/Gibraltar","Europe/Guernsey","Europe/Helsinki","Europe/Isle_of_Man","Europe/Istanbul","Europe/Jersey","Europe/Kaliningrad","Europe/Kiev","Europe/Kirov","Europe/Lisbon","Europe/Ljubljana","Europe/London","Europe/Luxembourg","Europe/Madrid","Europe/Malta","Europe/Mariehamn","Europe/Minsk","Europe/Monaco","Europe/Moscow","Europe/Oslo","Europe/Paris","Europe/Podgorica","Europe/Prague","Europe/Riga","Europe/Rome","Europe/Samara","Europe/San_Marino","Europe/Saratov","Europe/Simferopol","Europe/Skopje","Europe/Sofia","Europe/Stockholm","Europe/Tallinn","Europe/Tirane","Europe/Ulyanovsk","Europe/Uzhgorod","Europe/Vaduz","Europe/Vatican","Europe/Vienna","Europe/Vilnius","Europe/Volgograd","Europe/Warsaw","Europe/Zagreb","Europe/Zaporozhye","Europe/Zurich","Indian/Antananarivo","Indian/Christmas","Indian/Cocos","Indian/Comoro","Indian/Kerguelen","Indian/Mahe","Indian/Maldives","Indian/Mauritius","Indian/Mayotte","Indian/Reunion","Pacific/Easter","Pacific/Fiji","Pacific/Gambier","Pacific/Guam","Pacific/Honolulu","Pacific/Marquesas","Pacific/Midway","Pacific/Pago_Pago","Pacific/Tahiti","Pacific/Wake","UTC"];

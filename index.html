@@ -19,46 +19,45 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
    <!-- Latest compiled JavaScript -->
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+   <script src="assets/js/vue-easycm/dist/vue-easycm.js"></script>
  </head>
  <body class="is-preload">
  
    <div id="page-wrapper">
 	 
 	 <div id="root">
-	 <nav class="navbar navbar-default" style="background:#0d3b59">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#"><img src="/assets/img/Bandura_Cyber_Logo.svg" width = "150" style="margin-top: -7px;"/></a>
-<span class="header-logout">
-        <input type="submit" class="hidden" id="logout" value="Logout" @click="logout()" style="float:right;">
-      </span>
-    </div>
+		<nav class="navbar navbar-default" style="background:#0d3b59">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"><img src="/assets/img/Bandura_Cyber_Logo.svg" width = "150" style="margin-top: -7px;"/></a>
+					<span class="header-logout">
+						<input type="submit" class="hidden" id="logout" value="Logout" @click="logout()" style="float:right;">
+					</span>
+				</div>
 	
-  </div>
-</nav>
+			</div>
+		</nav>
 		<template>
 		<section class="login-screen" id="login">		
-        <div class="login-inner container-fluid">
-            <div class="row">
-                <div class="login-wrap">
-                    <div class="form-inner">
-                        <span class="logo-img">
-                            <img src="/assets/img/Bandura_Cyber_Logo.png" alt="Bandura_Cyber_Logo">
-                        </span>
-                        <h2>Sign In</h2>
-                        <div class="tab-content">
-                            <div id="loginTab" class="tab-pane fade in active">
-                               
+			<div class="login-inner container-fluid">
+				<div class="row">
+					<div class="login-wrap">
+						<div class="form-inner">
+							<span class="logo-img">
+								<img src="/assets/img/Bandura_Cyber_Logo.png" alt="Bandura_Cyber_Logo">
+							</span>
+							<h2>Sign In</h2>
+							<div class="tab-content">
+								<div id="loginTab" class="tab-pane fade in active">
                                     <span>
-									<label>USERNAME:</label>
-                                        <input type="text" name="" placeholder="USERNAME" v-model="uname">
+										<label>USERNAME:</label>
+										<input type="text" name="" placeholder="USERNAME" v-model="uname">
                                     </span>
                                     <span>
-									<label>PASSWORD:</label>
-                                        <input type="password" name="" placeholder="PASSWORD" v-model="pwd">
+										<label>PASSWORD:</label>
+										<input type="password" name="" placeholder="PASSWORD" v-model="pwd">
                                     </span>
-                                    
-                                    <span>
+									<span>
                                         <input type="submit" value="Login" @click="login()">
                                     </span>
 									<span>
@@ -66,55 +65,58 @@
 											Login attemt failed.Please provide proper login details.
 										</label>
                                     </span>
-                                
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-	<section>
-		<div class="container hidden" id="emailAlert">
-			<h3 style="color: blue;">E-mail Alerts</h3><br>
-			<span>
-				<label>Send Alerts to E-mail Address: </label>
-				<input type="email" style="min-width: 35%" v-model="emailAlertArray" placeholder="Enter E-mail or Multiple Emails with comma separated">
-			</span><br>
-			<span class="row">
-				<label>Send Log: </label>
-				<select class="form-control emailAlertDropdown" style="margin-left: 20px;" v-model="emailAlertSendLog">
-					<option value="daily">Daily</option>
-					<option value="weekly">Weekly</option>
-					<option value="monthly">Monthly</option>
-				</select>
-				<label> every </label>
-				<select class="form-control emailAlertDropdown" v-model="emailAlertdayOfWeek" :disabled="emailAlertSendLog == 'daily'">
-					<option value="sunday">Sun</option>
-					<option value="monday">Mon</option>
-					<option value="tuesday">Tue</option>
-					<option value="wednesday">Wed</option>
-					<option value="thursday">Thu</option>
-					<option value="friday">Fri</option>
-					<option value="saturday">Sat</option>
-				</select>
-				<label>at</label>
-				<input type="time" name="time" value="23:59"/ v-model="emailAlertTime">(24-Hour Format)
-			</span><br>
-			<span>
-				<label>Email format: </label>
-				<select class="form-control emailAlertDropdown" v-model="emailAlertFileFormat">
-					<option value="csv">CSV</option>
-					<option value="excel">EXCEL</option>
-				</select>
-			</span><br>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div class="container hidden" id="emailAlert">
+				<h3 style="color: blue;">E-mail Alerts</h3><br>
+				<span>
+					<label>Send Alerts to E-mail Address: </label>
+					<input type="email" style="min-width: 35%" v-model="emailAlertArray" placeholder="Enter E-mail or Multiple Emails with comma separated">
+				</span><br>
+				<span class="row">
+					<label>Send Log: </label>
+					<select class="form-control emailAlertDropdown" style="margin-left: 20px;" v-model="emailAlertSendLog">
+						<option value="daily">Daily</option>
+						<option value="weekly">Weekly</option>
+						<option value="monthly">Monthly</option>
+					</select>
+					<label> every </label>
+					<select class="form-control emailAlertDropdown" v-model="emailAlertdayOfWeek" :disabled="emailAlertSendLog == 'daily'">
+						<option value="sunday">Sun</option>
+						<option value="monday">Mon</option>
+						<option value="tuesday">Tue</option>
+						<option value="wednesday">Wed</option>
+						<option value="thursday">Thu</option>
+						<option value="friday">Fri</option>
+						<option value="saturday">Sat</option>
+					</select>
+					<label>at</label>
+					<input type="time" name="time" value="23:59"/ v-model="emailAlertTime">(24-Hour Format)
+				</span><br>
+				<span>
+					<label>Email format: </label>
+					<select class="form-control emailAlertDropdown" v-model="emailAlertFileFormat">
+						<option value="csv">CSV</option>
+						<option value="excel">EXCEL</option>
+					</select>
+				</span><br>
 			
-			<input type="checkbox" id="emailAlertCheckAll" v-model="emailAlertChecked"> <label>Include All Log Information</label><br>
-			<div>
-				<ul class="nav nav-tabs">
-						<li class="active"><a data-toggle="tab" href="#emailAlertPacket" @click="emailAlertFieldSelectPrompt('packet','domain')">Packet</a></li>
-						<li><a data-toggle="tab" href="#emailAlertDomain" @click="emailAlertFieldSelectPrompt('domain','packet')">Domain</a></li>
-				</ul>
+				<input type="checkbox" id="emailAlertCheckAll" v-model="emailAlertChecked"> <label>Include All Log Information</label><br>
+				<div>
+					<ul class="nav nav-tabs">
+						<li class="active">
+							<a data-toggle="tab" href="#emailAlertPacket" @click="emailAlertFieldSelectPrompt('packet','domain')">Packet</a>
+						</li>
+						<li>
+							<a data-toggle="tab" href="#emailAlertDomain" @click="emailAlertFieldSelectPrompt('domain','packet')">Domain</a>
+						</li>
+					</ul>
 				<div class="tab-content ">
 					<div id="emailAlertPacket" class="tab-pane fade in active" style="margin:20px" :disabled="emailAlertChecked == 'true'">
 						<div class="row emailAlertRowMargin">
@@ -352,6 +354,22 @@
 						<a style="float:right;margin-right: 20px;"><label @click="resetSearchFilters()">Reset</label></a>
 					</div>
 				</div>
+				<div>
+				</div>
+				<!--Context menu -->
+				<div id="cm">
+					<easy-cm :tag="1"
+							 :list="countryList"
+							 @ecmcb="addCountryToAllowedOrDenied"
+							 :underline="true"
+							 :arrow="true">
+					</easy-cm><easy-cm :tag="2"
+							 :list="sourceList"
+							 :underline="true"
+							 :arrow="true">
+					</easy-cm>
+				</div>
+				<!--Context menu end-->
 				<div id="packet" class="tab-pane fade in active">
 					<div class="row">
 						<div class="col-sm" >
@@ -429,10 +447,10 @@
 								<tbody ref="packetTable">
 									<tr v-for="(row, index) in rows" :key="index">
 										<td>{{row._source.timestamp}}</td>
-										<td>{{row._source.Country}}</td>
+										<td @click.prevent="$easycm($event,$root,1), setCountryCode(row._source.Country)"><a>{{row._source.Country}}</a></td>
 										<td>{{row._source.asName}}</td>
 										<td>{{row._source.Proto}}</td>
-										<td>{{row._source.source}}:{{row._source.sourcePort}}</td>
+										<td @contextmenu="$easycm($event,$root,2)">{{row._source.source}}:{{row._source.sourcePort}}</td>
 										<td>{{row._source.destination}}:{{row._source.destinationPort}}</td>
 										<td><div class="background-in" :class="{'background-out': row._source.Direction === 'outbound'}">{{row._source.Direction | capitalize}}</div></td>
 										<td><div class="background-action" :class="{'text-danger': row._source.Action === 'denied'}">{{row._source.Action | capitalize}}</div></td>
