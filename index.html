@@ -363,8 +363,10 @@
 							 @ecmcb="addCountryToAllowedOrDenied"
 							 :underline="true"
 							 :arrow="true">
-					</easy-cm><easy-cm :tag="2"
-							 :list="sourceList"
+					</easy-cm>
+					<easy-cm :tag="2"
+							 :list="allWhiteListAndBlackListGroups"
+							 @ecmcb="checkIPExistInGroup"
 							 :underline="true"
 							 :arrow="true">
 					</easy-cm>
@@ -450,7 +452,7 @@
 										<td @click.prevent="$easycm($event,$root,1), setCountryCode(row._source.Country)"><a>{{row._source.Country}}</a></td>
 										<td>{{row._source.asName}}</td>
 										<td>{{row._source.Proto}}</td>
-										<td @contextmenu="$easycm($event,$root,2)">{{row._source.source}}:{{row._source.sourcePort}}</td>
+										<td @click.prevent="$easycm($event,$root,2), getIPAddress(row._source.source)"><a>{{row._source.source}}:{{row._source.sourcePort}}</a></td>
 										<td>{{row._source.destination}}:{{row._source.destinationPort}}</td>
 										<td><div class="background-in" :class="{'background-out': row._source.Direction === 'outbound'}">{{row._source.Direction | capitalize}}</div></td>
 										<td><div class="background-action" :class="{'text-danger': row._source.Action === 'denied'}">{{row._source.Action | capitalize}}</div></td>
