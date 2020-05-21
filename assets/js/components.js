@@ -159,35 +159,53 @@ var tableData = new Vue({
 	  countryList: [],
 	  allCountryList:[],
 	  countryCode:'',
-	  sourceList: [
-		{
-			text: 'Whitelist',
-			children: [
-				{
-					text: 'Group1',
-				},
-				{
-					text: 'Group2',
-				}
-			]
-		},
-		{
-			text: 'Blacklist',
-			children: [
-				{
-					text: 'Group1',
-				},
-				{
-					text: 'Group2',
-				}
-			]
-		},
-		
-	]
-  },
+	  allBlackList: [],
+	  allBlackListGroups: [],
+	  allWhiteList: [],
+	  allWhiteListGroups: [],
+	  allWhiteListAndBlackListGroups: [],
+	  groupIPAddress: ''
+	},
   //components: {dateRangePicker},
    methods: {
-	   addCountryToAllowedOrDenied: function(indexList){
+	checkIPExistInGroup: function(indexList){
+		var groupList = {}
+		var listType = '';
+		listName = tableData.allWhiteListAndBlackListGroups[indexList[0]].text;
+		groupIndex = indexList[0,1];
+		if (listName.includes("Blacklist")){
+			blackListGroupName = blackListArray[groupIndex].text
+			for(i in tableData.allBlackList) {
+				if(Object.values(tableData.allBlackList[i]).includes(blackListGroupName)){
+					listObj = tableData.allBlackList[i]
+				}
+			}
+			if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
+				type = "Added";
+			} else if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
+				type = "Deleted";
+			}
+		} else if (listName.includes("Whitelist")) {
+			whiteListGroupName = whiteListArray[groupIndex].text
+			for(i in tableData.allWhiteList) {
+				if(Object.values(tableData.allWhiteList[i]).includes(whiteListGroupName)){
+					listObj = tableData.allWhiteList[i]
+				}
+			}
+			if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
+				type = "Added";
+			} else if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
+				type = "Deleted";
+			}
+		}
+		console.log("IP Address");
+		console.log(tableData.currentIPAddress);
+		postordeleteIPAddress(listObj.uuid, tableData.currentIPAddress, listName, type);
+	},
+	getIPAddress: function(ip){
+		tableData.currentIPAddress = ip;
+	},
+	addCountryToAllowedOrDenied: function(indexList){
 		var policyObj = {}
 		var type = '';
 		policyName = tableData.countryList[indexList[0]].text;
@@ -237,6 +255,8 @@ var tableData = new Vue({
 			setURL("packet");
 			getPolicies();
 			getAllCountries();
+			getAllWhitelists();
+			getAllBlacklists();
 			},
 			error: function (request, status, error) {
 				console.log(status);
@@ -1236,6 +1256,20 @@ var getAllCountries = function () {
 	internalServiceGetData(dataToBeSent);
 }
 
+var getAllWhitelists = function () {
+	dataToBeSent = {
+		"whitelist": "whitelist"
+	}
+	internalServiceGetData(dataToBeSent);
+}
+
+var getAllBlacklists = function () {
+	dataToBeSent = {
+		"blacklist": "blacklist"
+	}
+	internalServiceGetData(dataToBeSent);
+}
+
 var internalServiceGetData = function (dataToBeSent) {
 	$.ajax({
 			url: serviceApiUrl+"/getfromgmc",
@@ -1247,7 +1281,7 @@ var internalServiceGetData = function (dataToBeSent) {
 			},
 			dataType: 'json',
 			success: function (data) {
-				console.log('policy data-> '+data);
+				//console.log('policy data-> '+data);
 				if(dataToBeSent.hasOwnProperty('policy')){
 					tableData.countryPolicyList = data;
 					for(var i in tableData.countryPolicyList) {
@@ -1264,10 +1298,62 @@ var internalServiceGetData = function (dataToBeSent) {
 						}
 						tableData.countryList.push(countryListObj)
 					}
-					console.log('country policy list->'+tableData.countryList)
+					//console.log('country policy list->'+tableData.countryList)
 				}
 				if(dataToBeSent.hasOwnProperty('country')) {
 					tableData.allCountryList = data;
+				}
+
+				if(dataToBeSent.hasOwnProperty('whitelist')){
+					tableData.allWhiteList = data;
+					whiteListArray = []
+					for(var i in tableData.allWhiteList) {
+						whiteListGroup = {
+							text: tableData.allWhiteList[i].name,
+							children: [
+								{
+									text: 'ADD',
+								},
+								{
+									text: 'DELETE'
+								}
+							]
+						}
+						whiteListArray.push(whiteListGroup)
+					}
+					console.log("------------------")
+					console.log(whiteListArray)
+					whiteListObj = {
+						text: "Whitelist",
+						children: whiteListArray
+					}
+					tableData.allWhiteListAndBlackListGroups.push(whiteListObj)
+					console.log('All white list->'+tableData.allWhiteListGroups)
+				}
+
+				if(dataToBeSent.hasOwnProperty('blacklist')){
+					tableData.allBlackList = data;
+					blackListArray = []
+					for(var i in tableData.allBlackList) {
+						blackListGroup = {
+							text: tableData.allBlackList[i].name,
+							children: [
+								{
+									text: 'ADD',
+								},
+								{
+									text: 'DELETE'
+								}
+							]
+						}
+						blackListArray.push(blackListGroup)
+					}
+					blackListObj = {
+						text: "Blacklist",
+						children: blackListArray
+					}
+					tableData.allWhiteListAndBlackListGroups.push(blackListObj)
+					console.log('All white list->'+tableData.allWhiteListGroups)
 				}
 
 			},
@@ -1305,6 +1391,58 @@ var countryAllowedOrDenied = function (policyId, countryCode, type) {
 		});
 }
 
+var postordeleteIPAddress = function(groupId, IP, white_or_black_list, type){
+	dataToBeSent = {
+		"group_uuid": groupId,
+		"ip_address": IP,
+		"list_type": white_or_black_list,
+		"action_type": type
+	}
+
+	if ((white_or_black_list == "Whitelist") && (type == 'Deleted')){
+		action_type_message = "Deleted";
+		list_type_message = "White List Entry";
+	} else if ((white_or_black_list == "Blacklist") && (type == 'Deleted')) {
+		action_type_message = "Deleted";
+		list_type_message = "Black List Entry";
+	} else if ((white_or_black_list == "Whitelist") && (type == 'Added')){
+		action_type_message = "Added Entry";
+		list_type_message = " to White List";
+	} else if ((white_or_black_list == "Blacklist") && (type == 'Added')){
+		action_type_message = "Added Entry";
+		list_type_message = " to Black List";
+	}
+
+
+
+	$.ajax({
+		url: serviceApiUrl+"/ipupdatewhiteandblacklist",
+		type: 'post',
+		data: JSON.stringify(dataToBeSent),
+		headers: {
+			"Content-Type": 'application/json',
+			"Authorization": "Token "+window.localStorage.getItem('token')
+		},
+		dataType: 'json',
+		success: function (data) {
+			console.log('Group data-> '+data);
+			if (type == 'Deleted'){
+				$.growl({
+					title: "",
+					message:"Successfully "+action_type_message+" "+list_type_message+' "'+IP+'/32"'
+				});
+			} else if (type == 'Added'){
+				$.growl({
+					title: "",
+					message:"Successfully "+action_type_message+' "'+IP+'/32"'+list_type_message
+				});
+			}
+		},
+		error: function (request, status, error) {
+			console.log(status);
+		}
+	});
+}
 /*$('input[name="daterange"]').daterangepicker({
         startDate: moment(),
         endDate: moment(),
