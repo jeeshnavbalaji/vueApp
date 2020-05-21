@@ -173,7 +173,7 @@ var tableData = new Vue({
 		var listType = '';
 		listName = tableData.allWhiteListAndBlackListGroups[indexList[0]].text;
 		groupIndex = indexList[0,1];
-		if (listName.includes("blacklist")){
+		if (listName.includes("Blacklist")){
 			blackListGroupName = blackListArray[groupIndex].text
 			for(i in tableData.allBlackList) {
 				if(Object.values(tableData.allBlackList[i]).includes(blackListGroupName)){
@@ -181,11 +181,11 @@ var tableData = new Vue({
 				}
 			}
 			if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
-				type = "updated";
+				type = "Added";
 			} else if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
-				type = "deleted";
+				type = "Deleted";
 			}
-		} else if (listName.includes("whitelist")) {
+		} else if (listName.includes("Whitelist")) {
 			whiteListGroupName = whiteListArray[groupIndex].text
 			for(i in tableData.allWhiteList) {
 				if(Object.values(tableData.allWhiteList[i]).includes(whiteListGroupName)){
@@ -193,9 +193,9 @@ var tableData = new Vue({
 				}
 			}
 			if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
-				type = "updated";
+				type = "Added";
 			} else if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
-				type = "deleted";
+				type = "Deleted";
 			}
 		}
 		console.log("IP Address");
@@ -1324,7 +1324,7 @@ var internalServiceGetData = function (dataToBeSent) {
 					console.log("------------------")
 					console.log(whiteListArray)
 					whiteListObj = {
-						text: "whitelist",
+						text: "Whitelist",
 						children: whiteListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(whiteListObj)
@@ -1349,7 +1349,7 @@ var internalServiceGetData = function (dataToBeSent) {
 						blackListArray.push(blackListGroup)
 					}
 					blackListObj = {
-						text: "blacklist",
+						text: "Blacklist",
 						children: blackListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(blackListObj)
@@ -1398,6 +1398,23 @@ var postordeleteIPAddress = function(groupId, IP, white_or_black_list, type){
 		"list_type": white_or_black_list,
 		"action_type": type
 	}
+
+	if ((white_or_black_list == "Whitelist") && (type == 'Deleted')){
+		action_type_message = "Deleted";
+		list_type_message = "White List Entry";
+	} else if ((white_or_black_list == "Blacklist") && (type == 'Deleted')) {
+		action_type_message = "Deleted";
+		list_type_message = "Black List Entry";
+	} else if ((white_or_black_list == "Whitelist") && (type == 'Added')){
+		action_type_message = "Added Entry";
+		list_type_message = " to White List";
+	} else if ((white_or_black_list == "Blacklist") && (type == 'Added')){
+		action_type_message = "Added Entry";
+		list_type_message = " to Black List";
+	}
+
+
+
 	$.ajax({
 		url: serviceApiUrl+"/ipupdatewhiteandblacklist",
 		type: 'post',
@@ -1409,10 +1426,17 @@ var postordeleteIPAddress = function(groupId, IP, white_or_black_list, type){
 		dataType: 'json',
 		success: function (data) {
 			console.log('Group data-> '+data);
-			$.growl({
-				title: "Success",
-				message:"IP "+type+" Successfully"
-			});
+			if (type == 'Deleted'){
+				$.growl({
+					title: "",
+					message:"Successfully "+action_type_message+" "+list_type_message+' "'+IP+'/32"'
+				});
+			} else if (type == 'Added'){
+				$.growl({
+					title: "",
+					message:"Successfully "+action_type_message+' "'+IP+'/32"'+list_type_message
+				});
+			}
 		},
 		error: function (request, status, error) {
 			console.log(status);
