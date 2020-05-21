@@ -303,3 +303,15 @@ textarea {
 	width: 50%;
 	border-radius: 3px;
 }
+.cm-ul li i[data-v-92a164f6] {
+  display:none !important;
+}
+.cm-ul li[data-v-92a164f6] {
+        font-size: 12px !important;
+    letter-spacing: .2px;
+    height: 30px !important;
+    line-height: 30px !important;
+    width: 100% !important;
+   }
+.cm-ul li div[data-v-92a164f6] {
+     padding: 0 1em 0 .5em !important;}
