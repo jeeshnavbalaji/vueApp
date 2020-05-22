@@ -180,9 +180,9 @@ var tableData = new Vue({
 					listObj = tableData.allBlackList[i]
 				}
 			}
-			if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
+			if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "Add"){
 				type = "Added";
-			} else if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
+			} else if(blackListArray[groupIndex].children[indexList[0,1,2]].text === "Delete"){
 				type = "Deleted";
 			}
 		} else if (listName.includes("Whitelist")) {
@@ -192,9 +192,9 @@ var tableData = new Vue({
 					listObj = tableData.allWhiteList[i]
 				}
 			}
-			if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "ADD"){
+			if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "Add"){
 				type = "Added";
-			} else if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "DELETE"){
+			} else if(whiteListArray[groupIndex].children[indexList[0,1,2]].text === "Delete"){
 				type = "Deleted";
 			}
 		}
@@ -1308,52 +1308,64 @@ var internalServiceGetData = function (dataToBeSent) {
 					tableData.allWhiteList = data;
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
-						whiteListGroup = {
-							text: tableData.allWhiteList[i].name,
-							children: [
-								{
-									text: 'ADD',
-								},
-								{
-									text: 'DELETE'
-								}
-							]
+						if (tableData.allWhiteList[i].type == 'manual'){
+							whiteListGroup = {
+								text: tableData.allWhiteList[i].name,
+								children: [
+									{
+										text: 'Add',
+									},
+									{
+										text: 'Delete'
+									}
+								]
+							}
+							whiteListArray.push(whiteListGroup)
 						}
-						whiteListArray.push(whiteListGroup)
 					}
-					console.log("------------------")
-					console.log(whiteListArray)
+					// console.log("------------------")
+					// console.log(whiteListArray)
+					if (whiteListArray.length == 0){
+						whiteListArray = [{text: "No data found"}]
+					}
+
 					whiteListObj = {
 						text: "Whitelist",
 						children: whiteListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(whiteListObj)
-					console.log('All white list->'+tableData.allWhiteListGroups)
+					// console.log('All white list->'+tableData.allWhiteListGroups)
 				}
 
 				if(dataToBeSent.hasOwnProperty('blacklist')){
 					tableData.allBlackList = data;
 					blackListArray = []
 					for(var i in tableData.allBlackList) {
-						blackListGroup = {
-							text: tableData.allBlackList[i].name,
-							children: [
-								{
-									text: 'ADD',
-								},
-								{
-									text: 'DELETE'
-								}
-							]
+						if (tableData.allBlackList[i].type == 'manual'){
+							blackListGroup = {
+								text: tableData.allBlackList[i].name,
+								children: [
+									{
+										text: 'Add',
+									},
+									{
+										text: 'Delete'
+									}
+								]
+							}
+							blackListArray.push(blackListGroup)
 						}
-						blackListArray.push(blackListGroup)
 					}
+					if (blackListArray.length == 0){
+						blackListArray = [{text: "No data found"}]
+					}
+
 					blackListObj = {
 						text: "Blacklist",
 						children: blackListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(blackListObj)
-					console.log('All white list->'+tableData.allWhiteListGroups)
+					// console.log('All white list->'+tableData.allWhiteListGroups)
 				}
 
 			},
@@ -1412,8 +1424,6 @@ var postordeleteIPAddress = function(groupId, IP, white_or_black_list, type){
 		action_type_message = "Added Entry";
 		list_type_message = " to Black List";
 	}
-
-
 
 	$.ajax({
 		url: serviceApiUrl+"/ipupdatewhiteandblacklist",
