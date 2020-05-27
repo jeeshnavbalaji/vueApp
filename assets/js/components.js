@@ -166,7 +166,10 @@ var tableData = new Vue({
 	  allWhiteListGroups: [],
 	  allWhiteListAndBlackListGroups: [],
 	  groupIPAddress: '',
-	  listOfGroupIPObjArray: []
+	  listOfWhitelistGroupIPObjArray: [],
+	  listOfBlacklistGroupIpObjArray:[],
+	  whitelistIpGroupNames: [],
+	  blacklistIpGroupNames: []
 	},
   //components: {dateRangePicker},
    methods: {
@@ -203,9 +206,32 @@ var tableData = new Vue({
 		console.log("IP Address");
 		console.log(tableData.groupIPAddress);
 		postordeleteIPAddress(listObj.uuid, tableData.groupIPAddress, listName, type);
+		clearIpListGroups();
+		getAllWhitelists();
+		getAllBlacklists();
 	},
 	getIPAddress: function(ip){
 		tableData.groupIPAddress = ip;
+		tableData.whitelistIpGroupNames = []
+		tableData.blacklistIpGroupNames = []
+		for(i in tableData.listOfWhitelistGroupIPObjArray) {
+		   var filteredIp = tableData.listOfWhitelistGroupIPObjArray[i][1].filter(ip => tableData.groupIPAddress.includes(ip.address))
+		   if(filteredIp.length > 0) {
+		        console.log("GroupId->"+tableData.listOfWhitelistGroupIPObjArray[i][0]+", ip_obj->"+filteredIp)
+		        var whitelistGroupObj = tableData.allWhiteList.filter(group => tableData.listOfWhitelistGroupIPObjArray[i][0].includes(group.uuid))
+		        tableData.whitelistIpGroupNames.push(whitelistGroupObj[0].name)
+		   }
+		}
+		for(i in tableData.listOfBlacklistGroupIpObjArray) {
+		   var filteredIp = tableData.listOfBlacklistGroupIpObjArray[i][1].filter(ip => tableData.groupIPAddress.includes(ip.address))
+		   if(filteredIp.length > 0) {
+		        console.log("GroupId->"+tableData.listOfBlacklistGroupIpObjArray[i][0]+", ip_obj->"+filteredIp)
+		        var blacklistGroupObj = tableData.allBlackList.filter(group => tableData.listOfBlacklistGroupIpObjArray[i][0].includes(group.uuid))
+		        tableData.blacklistIpGroupNames.push(blacklistGroupObj[0].name)
+		   }
+		}
+		console.log("Whitelist Group names that exist in given IP->"+tableData.whitelistIpGroupNames)
+		console.log("Blacklist Group names that exist in given IP->"+tableData.blacklistIpGroupNames)
 	},
 	addCountryToAllowedOrDenied: function(indexList){
 		var policyObj = {}
@@ -1214,6 +1240,16 @@ var isEmailFieldSelected = function (obj) {
 	}
 	return false;
 }
+var clearIpListGroups = function (){
+      tableData.allBlackList= [];
+	  tableData.allBlackListGroups= [];
+	  tableData.allWhiteList= [];
+	  tableData.allWhiteListGroups= [];
+	  tableData.allWhiteListAndBlackListGroups= [];
+	  tableData.groupIPAddress= '';
+	  tableData.listOfWhitelistGroupIPObjArray= [];
+	  tableData.listOfBlacklistGroupIpObjArray= [];
+}
 
 var resetEmailAlertData = function () {
 	  tableData.emailAlertArray='';
@@ -1248,103 +1284,56 @@ var getPolicies = function () {
 	dataToBeSent = {
 		"policy": "policy"
 	}
-	internalServiceGetData(dataToBeSent);
+	internalServiceGetData(dataToBeSent).then(data => {
+	    console.log(data);
+			tableData.countryPolicyList = data;
+			for(var i in tableData.countryPolicyList) {
+				countryListObj = {
+					text: tableData.countryPolicyList[i].name,
+					children: [
+						{
+							text: 'Allow',
+						},
+						{
+							text: 'Deny'
+						}
+					]
+				}
+			    tableData.countryList.push(countryListObj)
+			}
+			console.log('country policy list->'+tableData.countryList)
+	}).catch(error => {
+	    console.log(error)
+	});
 }
 
 var getAllCountries = function () {
 	dataToBeSent = {
 		"country": "country"
 	}
-	internalServiceGetData(dataToBeSent);
+	internalServiceGetData(dataToBeSent).then(data => {
+	    console.log(data);
+		tableData.allCountryList = data;
+	}).catch(error => {
+	    console.log(error)
+	});
 }
 
 var getAllWhitelists = function () {
 	dataToBeSent = {
 		"whitelist": "whitelist"
 	}
-	internalServiceGetData(dataToBeSent);
-}
-
-var getAllBlacklists = function () {
-	dataToBeSent = {
-		"blacklist": "blacklist"
-	}
-	internalServiceGetData(dataToBeSent);
-}
-
-var internalServiceGetData = function (dataToBeSent) {
-	$.ajax({
-			url: serviceApiUrl+"/getfromgmc",
-			type: 'post',
-			data: JSON.stringify(dataToBeSent),
-			headers: {
-				"Content-Type": 'application/json',
-				"Authorization": "Token "+window.localStorage.getItem('token')
-			},
-			dataType: 'json',
-			success: function (data) {
-				//console.log('policy data-> '+data);
-				if(dataToBeSent.hasOwnProperty('policy')){
-					tableData.countryPolicyList = data;
-					for(var i in tableData.countryPolicyList) {
-						countryListObj = {
-							text: tableData.countryPolicyList[i].name,
-							children: [
-								{
-									text: 'Allow',
-								},
-								{
-									text: 'Deny'
-								}
-							]
-						}
-						tableData.countryList.push(countryListObj)
-					}
-					//console.log('country policy list->'+tableData.countryList)
-				}
-				if(dataToBeSent.hasOwnProperty('country')) {
-					tableData.allCountryList = data;
-				}
-
-				if(dataToBeSent.hasOwnProperty('whitelist')){
+	internalServiceGetData(dataToBeSent).then(data => {
+	    console.log(data);
 					tableData.allWhiteList = data;
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
 						if (tableData.allWhiteList[i].type == 'manual'){
-						    if (tableData.allWhiteList[i].ip_count > 0){
-								var key = tableData.allWhiteList[i].name
-							    dataToBeSent = {
-									"group_uuid": tableData.allWhiteList[i].uuid,
-									"grouptype": 'whitelist'
-								}
-								$.ajax({
-									url: serviceApiUrl+"/checkipaddressgroup",
-									type: 'post',
-									data: JSON.stringify(dataToBeSent),
-									headers: {
-										"Content-Type": 'application/json',
-										"Authorization": "Token "+window.localStorage.getItem('token')
-									},
-									dataType: 'json',
-									success: function (data) {
-										listOfGroupIPObj = {
-											WhiteListIPGroup: [key, data]
-										}
-										tableData.listOfGroupIPObjArray.push(listOfGroupIPObj)
-										console.log("Group Data appended")
-									},
-									error: function (request, status, error) {
-										console.log(status);
-									}
-
-								});
-						    }
-
 							whiteListGroup = {
 								text: tableData.allWhiteList[i].name,
 								children: [
 									{
-										text: 'Add',
+										text: 'Add'
 									},
 									{
 										text: 'Delete'
@@ -1354,10 +1343,6 @@ var internalServiceGetData = function (dataToBeSent) {
 							whiteListArray.push(whiteListGroup)
 						}
 					}
-					console.log("----Dynamic IP------")
-					console.log(tableData.listOfGroupIPObjArray)
-					// console.log("------------------")
-					// console.log(whiteListArray)
 					if (whiteListArray.length == 0){
 						whiteListArray = [{text: "No data found"}]
 					}
@@ -1367,10 +1352,18 @@ var internalServiceGetData = function (dataToBeSent) {
 						children: whiteListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(whiteListObj)
-					// console.log('All white list->'+tableData.allWhiteListGroups)
-				}
+					getEachWhiteListGroupIpAddress();
+	}).catch(error => {
+	    console.log(error)
+	});
+}
 
-				if(dataToBeSent.hasOwnProperty('blacklist')){
+var getAllBlacklists = function () {
+	dataToBeSent = {
+		"blacklist": "blacklist"
+	}
+	internalServiceGetData(dataToBeSent).then(data => {
+	    console.log(data);
 					tableData.allBlackList = data;
 					blackListArray = []
 					for(var i in tableData.allBlackList) {
@@ -1379,7 +1372,7 @@ var internalServiceGetData = function (dataToBeSent) {
 								text: tableData.allBlackList[i].name,
 								children: [
 									{
-										text: 'Add',
+										text: 'Add'
 									},
 									{
 										text: 'Delete'
@@ -1398,41 +1391,120 @@ var internalServiceGetData = function (dataToBeSent) {
 						children: blackListArray
 					}
 					tableData.allWhiteListAndBlackListGroups.push(blackListObj)
-					// console.log('All white list->'+tableData.allWhiteListGroups)
-				}
+					getEachBlacklistGroupIpAddress();
+	}).catch(error => {
+	    console.log(error)
+	});
+}
 
+var internalServiceGetData = function (dataToBeSent) {
+return new Promise((resolve, reject) => {
+	$.ajax({
+			url: serviceApiUrl+"/getfromgmc",
+			type: 'post',
+			data: JSON.stringify(dataToBeSent),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			success: function (data) {
+				resolve(data)
 			},
 			error: function (request, status, error) {
 				console.log(status);
+				reject(error)
 			}
-		});
+	});
+})
 }
 
-var checkIPAddressInGroups = function(listgroupid, listgrounpname){
-	dataToBeSent = {
-		"group_uuid": listgroupid,
-		"grouptype": listgrounpname
+var getEachWhiteListGroupIpAddress = function() {
+    for(var i in tableData.allWhiteList) {
+		if (tableData.allWhiteList[i].type == 'manual' && tableData.allWhiteList[i].ip_count > 0){
+			//Getting the Ip's in each group
+				dataToBeSent = {
+					"group_uuid": tableData.allWhiteList[i].uuid,
+					"grouptype": 'whitelist'
+				}
+				getGropeIps(dataToBeSent).then(data => {
+	                console.log(data);
+					tableData.listOfWhitelistGroupIPObjArray.push(data)
+	             }).catch(error => {
+	                    console.log(error)
+	             });
+		}
 	}
-	$.ajax({
+	console.log("whitelist group ips->"+tableData.listOfWhitelistGroupIPObjArray)
+}
+
+var getEachBlacklistGroupIpAddress = function() {
+    for(var i in tableData.allBlackList) {
+		if (tableData.allBlackList[i].type == 'manual' && tableData.allBlackList[i].ip_count > 0){
+			//Getting the Ip's in each group
+				dataToBeSent = {
+					"group_uuid": tableData.allBlackList[i].uuid,
+					"grouptype": 'blacklist'
+				}
+				getGropeIps(dataToBeSent).then(data => {
+	                console.log(data);
+					tableData.listOfBlacklistGroupIpObjArray.push(data)
+	             }).catch(error => {
+	                    console.log(error)
+	             });
+		}
+	}
+	console.log("whitelist group ips->"+tableData.listOfBlacklistGroupIpObjArray)
+}
+
+var getGropeIps = function(dataToBeSent) {
+return new Promise((resolve, reject) => {
+    $.ajax({
 		url: serviceApiUrl+"/checkipaddressgroup",
 		type: 'post',
-		data: JSON.stringify(dataToBeSent),
+	    data: JSON.stringify(dataToBeSent),
 		headers: {
 			"Content-Type": 'application/json',
 			"Authorization": "Token "+window.localStorage.getItem('token')
 		},
-		dataType: 'json',
 		success: function (data) {
-			console.log("mydata--------------------")
-			console.log('policy data-> '+data);
-			getData(data)
+			resolve(data);
 		},
 		error: function (request, status, error) {
 			console.log(status);
+			reject(error)
 		}
 
 	});
+})
 }
+
+
+
+//var checkIPAddressInGroups = function(listgroupid, listgrounpname){
+//	dataToBeSent = {
+//		"group_uuid": listgroupid,
+//		"grouptype": listgrounpname
+//	}
+//	$.ajax({
+//		url: serviceApiUrl+"/checkipaddressgroup",
+//		type: 'post',
+//		data: JSON.stringify(dataToBeSent),
+//		headers: {
+//			"Content-Type": 'application/json',
+//			"Authorization": "Token "+window.localStorage.getItem('token')
+//		},
+//		dataType: 'json',
+//		success: function (data) {
+//			console.log("mydata--------------------")
+//			console.log('policy data-> '+data);
+//			getData(data)
+//		},
+//		error: function (request, status, error) {
+//			console.log(status);
+//		}
+//
+//	});
+//}
 
 var countryAllowedOrDenied = function (policyId, countryCode, type) {
 	dataToBeSent = {
