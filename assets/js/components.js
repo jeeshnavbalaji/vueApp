@@ -51,6 +51,7 @@ var setURL = function (type) {
 	  tableData.moduleQueryString='all';
 	  tableData.actionTypeQueryString='all';
 	  tableData.userTypeQueryString='all';
+	  tableData.groupIPAddress='';
 	if (type === "domain") {
 		esURL = esDomainURL;
 	} else if (type === "packet") {
@@ -164,7 +165,8 @@ var tableData = new Vue({
 	  allWhiteList: [],
 	  allWhiteListGroups: [],
 	  allWhiteListAndBlackListGroups: [],
-	  groupIPAddress: ''
+	  groupIPAddress: '',
+	  listOfGroupIPObjArray: []
 	},
   //components: {dateRangePicker},
    methods: {
@@ -199,11 +201,11 @@ var tableData = new Vue({
 			}
 		}
 		console.log("IP Address");
-		console.log(tableData.currentIPAddress);
-		postordeleteIPAddress(listObj.uuid, tableData.currentIPAddress, listName, type);
+		console.log(tableData.groupIPAddress);
+		postordeleteIPAddress(listObj.uuid, tableData.groupIPAddress, listName, type);
 	},
 	getIPAddress: function(ip){
-		tableData.currentIPAddress = ip;
+		tableData.groupIPAddress = ip;
 	},
 	addCountryToAllowedOrDenied: function(indexList){
 		var policyObj = {}
@@ -1309,6 +1311,35 @@ var internalServiceGetData = function (dataToBeSent) {
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
 						if (tableData.allWhiteList[i].type == 'manual'){
+						    if (tableData.allWhiteList[i].ip_count > 0){
+								var key = tableData.allWhiteList[i].name
+							    dataToBeSent = {
+									"group_uuid": tableData.allWhiteList[i].uuid,
+									"grouptype": 'whitelist'
+								}
+								$.ajax({
+									url: serviceApiUrl+"/checkipaddressgroup",
+									type: 'post',
+									data: JSON.stringify(dataToBeSent),
+									headers: {
+										"Content-Type": 'application/json',
+										"Authorization": "Token "+window.localStorage.getItem('token')
+									},
+									dataType: 'json',
+									success: function (data) {
+										listOfGroupIPObj = {
+											WhiteListIPGroup: [key, data]
+										}
+										tableData.listOfGroupIPObjArray.push(listOfGroupIPObj)
+										console.log("Group Data appended")
+									},
+									error: function (request, status, error) {
+										console.log(status);
+									}
+
+								});
+						    }
+
 							whiteListGroup = {
 								text: tableData.allWhiteList[i].name,
 								children: [
@@ -1323,6 +1354,8 @@ var internalServiceGetData = function (dataToBeSent) {
 							whiteListArray.push(whiteListGroup)
 						}
 					}
+					console.log("----Dynamic IP------")
+					console.log(tableData.listOfGroupIPObjArray)
 					// console.log("------------------")
 					// console.log(whiteListArray)
 					if (whiteListArray.length == 0){
@@ -1373,6 +1406,32 @@ var internalServiceGetData = function (dataToBeSent) {
 				console.log(status);
 			}
 		});
+}
+
+var checkIPAddressInGroups = function(listgroupid, listgrounpname){
+	dataToBeSent = {
+		"group_uuid": listgroupid,
+		"grouptype": listgrounpname
+	}
+	$.ajax({
+		url: serviceApiUrl+"/checkipaddressgroup",
+		type: 'post',
+		data: JSON.stringify(dataToBeSent),
+		headers: {
+			"Content-Type": 'application/json',
+			"Authorization": "Token "+window.localStorage.getItem('token')
+		},
+		dataType: 'json',
+		success: function (data) {
+			console.log("mydata--------------------")
+			console.log('policy data-> '+data);
+			getData(data)
+		},
+		error: function (request, status, error) {
+			console.log(status);
+		}
+
+	});
 }
 
 var countryAllowedOrDenied = function (policyId, countryCode, type) {
