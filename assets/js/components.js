@@ -70,6 +70,27 @@ Vue.filter('capitalize', function (value) {
   return value.charAt(0).toUpperCase() + value.slice(1)
 });
 
+//declaring vue tooltip
+Vue.directive('tooltip', {
+  bind: function bsTooltipCreate(el, binding) {
+    let trigger;
+    if (binding.modifiers.hover) {
+      const t = [];
+      if (binding.modifiers.hover) t.push('hover');
+      trigger = t.join(' ');
+    }
+    $(el).tooltip({
+      title: binding.value,
+      placement: binding.arg,
+      trigger: trigger,
+      html: binding.modifiers.html
+    });
+  },
+  unbind(el, binding) {
+    $(el).tooltip('destroy');
+  },
+});
+
 var tableData = new Vue({
   el: '#root',
   data: {
@@ -169,7 +190,12 @@ var tableData = new Vue({
 	  listOfWhitelistGroupIPObjArray: [],
 	  listOfBlacklistGroupIpObjArray:[],
 	  whitelistIpGroupNames: [],
-	  blacklistIpGroupNames: []
+	  blacklistIpGroupNames: [],
+	  whitelist_active: 'Whitelist active',
+	  blacklist_active: 'Blacklist active',
+	  whitelist_inactive: 'Whitelist inactive',
+	  blacklist_inactive: 'Blacklist inactive',
+	  threatlist: 'Threatlist'
 	},
   //components: {dateRangePicker},
    methods: {
@@ -1077,6 +1103,9 @@ var removeSpecialChars = function(data) {
 		}
 		if(data[i]._source.destinationPort && data[i]._source.destinationPort.includes(",")) {
 			tableData.rows[i]._source.destinationPort = data[i]._source.destinationPort.substr(0, data[i]._source.destinationPort.indexOf(','));
+		}
+		if(data[i]._source.Domain && data[i]._source.Domain.includes(",")) {
+			tableData.rows[i]._source.Domain = data[i]._source.Domain.substr(0, data[i]._source.Domain.indexOf(','));
 		}
 		if(data[i]._source.Country){
 			tableData.rows[i]._source.Country = data[i]._source.Country.replace(/"/g, "");

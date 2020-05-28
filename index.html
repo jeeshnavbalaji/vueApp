@@ -20,6 +20,7 @@
    <!-- Latest compiled JavaScript -->
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
    <script src="assets/js/vue-easycm/dist/vue-easycm.js"></script>
+<!--	<script src="https://unpkg.com/v-tooltip"></script>-->
  </head>
  <body class="is-preload">
  
@@ -463,10 +464,12 @@
 										</td>
 										<td>{{row._source.reason | capitalize}}</td>
 										<td>
-										<span v-if="!row._source.threatlists && !row._source.whitelists && !row._source.blacklists">-</span>
-										<span v-if="row._source.threatlists" class="list-styles threatlist-background">{{row._source.threatlists}}</span> <br>
-										<span v-if="row._source.whitelists" class="list-styles whitelist-background">{{row._source.whitelists}}</span> <br>
-										<span v-if="row._source.blacklists" class="list-styles blacklist-background">{{row._source.blacklists}}</span>
+											<span v-if="!row._source.threatlists && !row._source.whitelists_active && !row._source.whitelists_inactive && !row._source.blacklists_active && !row._source.blacklists_inactive">-</span>
+											<span v-if="row._source.threatlists" class="list-styles threatlist-background" v-tooltip.top-center="threatlist">{{row._source.threatlists}}</span> <br>
+											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_active">{{row._source.whitelists_active}}</span> <br>
+											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_active">{{row._source.blacklists_active}}</span> <br>
+											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_inactive">{{row._source.whitelists_inactive}}</span> <br>
+											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_inactive">{{row._source.blacklists_inactive}}</span>
 										</td>
 										<td>{{row._source.Group}}</td>
 										<td>{{row._source.HName}}</td>
@@ -517,6 +520,9 @@
 												<option v-for="reason in reasonDropdownArr" v-bind:value="reason">{{reason}}</option>
 											</select>
 										</th>
+										<th>List
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQueryString" style="boarder:0px" placeholder="Search"/>
+										</th>
 										<th>Device
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">        
 												<option value="all" selected>All</option>
@@ -534,6 +540,13 @@
 										<td><a @click.prevent="$easycm($event,$root,2), getIPAddress(row._source.DST)">{{row._source.DST}}</a></td>
 										<td><div class="background-action" :class="{'text-danger': row._source.Action === 'denied'}">{{row._source.Action | capitalize}}</div></td>
 										<td>{{row._source.Reason | capitalize}}</td>
+										<td>
+											<span v-if="!row._source.whitelists_active && !row._source.whitelists_inactive && !row._source.blacklists_active && !row._source.blacklists_inactive">-</span>
+											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_active">{{row._source.whitelists_active}}</span> <br>
+											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_active">{{row._source.blacklists_active}}</span> <br>
+											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_inactive">{{row._source.whitelists_inactive}}</span> <br>
+											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_inactive">{{row._source.blacklists_inactive}}</span>
+										</td>
 										<td>{{row._source.HName}}</td>
 									</tr>
 								</tbody>
