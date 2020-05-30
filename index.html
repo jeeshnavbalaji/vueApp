@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
  <head>
-  <link rel='icon' href='/assets/img/bandura_favicon.ico' type='image/x-icon'/ >
+  <link rel='icon' href='/assets/img/bandura_favicon.ico' type='image/x-icon'/>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>  
   <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -20,7 +20,7 @@
    <!-- Latest compiled JavaScript -->
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
    <script src="assets/js/vue-easycm/dist/vue-easycm.js"></script>
-<!--	<script src="https://unpkg.com/v-tooltip"></script>-->
+	<script src="https://unpkg.com/v-tooltip"></script>
  </head>
  <body class="is-preload">
  
@@ -465,11 +465,11 @@
 										<td>{{row._source.reason | capitalize}}</td>
 										<td>
 											<span v-if="!row._source.threatlists && !row._source.whitelists_active && !row._source.whitelists_inactive && !row._source.blacklists_active && !row._source.blacklists_inactive">-</span>
-											<span v-if="row._source.threatlists" class="list-styles threatlist-background" v-tooltip.top-center="threatlist">{{row._source.threatlists}}</span> <br>
-											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_active">{{row._source.whitelists_active}}</span> <br>
-											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_active">{{row._source.blacklists_active}}</span> <br>
-											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_inactive">{{row._source.whitelists_inactive}}</span> <br>
-											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_inactive">{{row._source.blacklists_inactive}}</span>
+											<span v-if="row._source.threatlists" class="list-styles threatlist-background" v-tooltip="{content: 'Threatlist', classes:['top-center']}">{{row._source.threatlists}}</span> <br>
+											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip="{content: 'Whitelist active', classes:['top-center']}">{{row._source.whitelists_active}}</span> <br>
+											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip="{content: 'Blacklist active', classes:['top-center']}">{{row._source.blacklists_active}}</span> <br>
+											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip="{content: 'Whitelist inactive', classes:['top-center']}">{{row._source.whitelists_inactive}}</span> <br>
+											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip="{content: 'Blacklist inactive', classes:['top-center']}">{{row._source.blacklists_inactive}}</span>
 										</td>
 										<td>{{row._source.Group}}</td>
 										<td>{{row._source.HName}}</td>
@@ -542,10 +542,10 @@
 										<td>{{row._source.Reason | capitalize}}</td>
 										<td>
 											<span v-if="!row._source.whitelists_active && !row._source.whitelists_inactive && !row._source.blacklists_active && !row._source.blacklists_inactive">-</span>
-											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_active">{{row._source.whitelists_active}}</span> <br>
-											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_active">{{row._source.blacklists_active}}</span> <br>
-											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip.top-center="whitelist_inactive">{{row._source.whitelists_inactive}}</span> <br>
-											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip.top-center="blacklist_inactive">{{row._source.blacklists_inactive}}</span>
+											<span v-if="row._source.whitelists_active" class="list-styles whitelist-background" v-tooltip="{content: 'Whitelist active', classes:['top-center']}">{{row._source.whitelists_active}}</span> <br>
+											<span v-if="row._source.blacklists_active" class="list-styles blacklist-background" v-tooltip="{content: 'Blacklist active', classes:['top-center']}">{{row._source.blacklists_active}}</span> <br>
+											<span v-if="row._source.whitelists_inactive" class="list-styles whitelist-background" v-tooltip="{content: 'Whitelist inactive', classes:['top-center']}">{{row._source.whitelists_inactive}}</span> <br>
+											<span v-if="row._source.blacklists_inactive" class="list-styles blacklist-background" v-tooltip="{content: 'Blacklist inactive', classes:['top-center']}">{{row._source.blacklists_inactive}}</span>
 										</td>
 										<td>{{row._source.HName}}</td>
 									</tr>

@@ -70,27 +70,6 @@ Vue.filter('capitalize', function (value) {
   return value.charAt(0).toUpperCase() + value.slice(1)
 });
 
-//declaring vue tooltip
-Vue.directive('tooltip', {
-  bind: function bsTooltipCreate(el, binding) {
-    let trigger;
-    if (binding.modifiers.hover) {
-      const t = [];
-      if (binding.modifiers.hover) t.push('hover');
-      trigger = t.join(' ');
-    }
-    $(el).tooltip({
-      title: binding.value,
-      placement: binding.arg,
-      trigger: trigger,
-      html: binding.modifiers.html
-    });
-  },
-  unbind(el, binding) {
-    $(el).tooltip('destroy');
-  },
-});
-
 var tableData = new Vue({
   el: '#root',
   data: {
@@ -190,12 +169,7 @@ var tableData = new Vue({
 	  listOfWhitelistGroupIPObjArray: [],
 	  listOfBlacklistGroupIpObjArray:[],
 	  whitelistIpGroupNames: [],
-	  blacklistIpGroupNames: [],
-	  whitelist_active: 'Whitelist active',
-	  blacklist_active: 'Blacklist active',
-	  whitelist_inactive: 'Whitelist inactive',
-	  blacklist_inactive: 'Blacklist inactive',
-	  threatlist: 'Threatlist'
+	  blacklistIpGroupNames: []
 	},
   //components: {dateRangePicker},
    methods: {
