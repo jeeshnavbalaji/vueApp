@@ -313,6 +313,22 @@
 			</span>
 		</div>
 	</section>
+	<section>
+		<div class="container hidden" style="text-align: center; padding-top: 40px;" id="gmcKeyPage">
+			<h3 style="color: blue;">GMC API Credentials</h3><br>
+			<div class="row">
+				<div class="col-sm-3"></div>
+				<div class="col-sm-6">
+					<input class="apiKeyInputWidth" v-model="apiKeySubmit" placeholder="Enter API KEY"/>
+					<span class="emailAlertButtonsPosition">
+						<button type="button" class="btn btn-success" @click="saveGmcKey();">Save</button>
+						<button type="button" class="btn btn-light" @click="saveGmcKeyCancle();">Cancel</button>
+					</span>
+				</div>
+				<div class="col-sm-2"></div>
+			</div>
+		</div>
+	</section>
 			<div class="container hidden" id="content">
 				<div class="row">
 					<div class="col-sm" style="font-size:20px;border-bottom: 1px solid whitesmoke;">
@@ -352,6 +368,7 @@
 						</select>
 						<span class="btn btn-default copy-btn ml-auto" @click="copyToClipboard();">Export...</span>
 						<span class="btn btn-default copy-btn ml-auto" @click="setEmailAlert();">Email Alerts</span>
+						<span class="btn btn-default copy-btn ml-auto" @click="setGMCKey();">GMC Credentials</span>
 						<a style="float:right;margin-right: 20px;"><label @click="resetSearchFilters()">Reset</label></a>
 					</div>
 				</div>

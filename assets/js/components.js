@@ -169,7 +169,8 @@ var tableData = new Vue({
 	  listOfWhitelistGroupIPObjArray: [],
 	  listOfBlacklistGroupIpObjArray:[],
 	  whitelistIpGroupNames: [],
-	  blacklistIpGroupNames: []
+	  blacklistIpGroupNames: [],
+	  apiKeySubmit:'',
 	},
   //components: {dateRangePicker},
    methods: {
@@ -281,16 +282,56 @@ var tableData = new Vue({
 			$('#logout').removeClass('hidden');
 			$('#lblLoginErrMsg').addClass('hidden');
 			setURL("packet");
-			getPolicies();
-			getAllCountries();
-			getAllWhitelists();
-			getAllBlacklists();
+			// getPolicies();
+			// getAllCountries();
+			// getAllWhitelists();
+			// getAllBlacklists();
 			},
 			error: function (request, status, error) {
 				console.log(status);
 				$('#lblLoginErrMsg').removeClass('hidden');
 			}
 		});
+	},
+
+	saveGmcKey: function () {
+		dataObject = { "apikey": tableData.apiKeySubmit }
+		$.ajax({
+			url: serviceApiUrl+"/gmckey",
+			type: 'post',
+			data: JSON.stringify(dataObject),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			success: function (data) {
+				$.growl({
+					title: "Success",
+					message:"Valid Apikey"
+				});
+				$('#content').removeClass('hidden');
+				$('#gmcKeyPage').addClass('hidden');
+				getPolicies();
+				getAllCountries();
+				getAllWhitelists();
+				getAllBlacklists();
+			},
+			error: function (request, status, error) {
+				$.growl.warning({
+					message: request.responseText
+				});
+				$('#content').removeClass('hidden');
+				$('#gmcKeyPage').addClass('hidden');
+			}
+		});
+	},
+	setGMCKey: function (){
+		$('#content').addClass('hidden');
+		$('#gmcKeyPage').removeClass('hidden');
+	},
+	saveGmcKeyCancle: function (){
+		$('#content').removeClass('hidden');
+		$('#gmcKeyPage').addClass('hidden');
 	},
 	logout: function () {
 			$('#content').addClass('hidden');
@@ -453,7 +494,8 @@ var tableData = new Vue({
 		tableData.dstIpObj = {};
 		tableData.moduleQueryString='all',
 		tableData.actionTypeQueryString='all',
-		tableData.userTypeQueryString='all'
+		tableData.userTypeQueryString='all',
+		tableData.apiKeySubmit='',
 		getLogs(tableData.from);
 	},
 	dateFilter: function (inputName) {
