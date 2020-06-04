@@ -381,12 +381,13 @@ var tableData = new Vue({
 		if(isEmailFieldSelected(getLogObject(type))) {
 			alert('Selected '+type+' filds are not saved');
 		}
-		emailpacketdomainlog();
-		$('#emailAlertCheckAll').prop('checked',true);
+		// emailpacketdomainlog();
+		// $('#emailAlertCheckAll').prop('checked',true);
 		resetEmailAlertData();
 		tableData.emailAlertTabName = actualType;
 	},
 	saveEmailAlert: function (){
+		tableData.emailAlertChecked = 'False'
 		var email_val = $('#emailAlert input[type="email"]').val();
 		var time_val = $('#emailAlert input[type="time"]').val();
 		var country_val = $('#emailAlert emailAlertFieldsDropdown').val();
@@ -1733,7 +1734,7 @@ $(function() {
 
 function emailpacketdomainlog(){
 	if ($("#emailAlertCheckAll").is(":checked")){
-		$('#emailAlertCheckAll').prop('checked',true);
+		// $('#emailAlertCheckAll').prop('checked',true);
 		tableData.emailAlertPacketCountry = 'Select Country';
 		tableData.emailAlertPacketDestination = '';
 		tableData.emailAlertPacketASN = '';
