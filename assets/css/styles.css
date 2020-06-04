@@ -304,8 +304,20 @@ textarea {
 	border-radius: 3px;
 }
 .cm-ul li i[data-v-92a164f6] {
-  display:none !important;
+  display:none;
 }
+.fa-check{
+    color: green;
+    display: inline !important;
+}
+/*.fa-check:hover{
+    color: white;
+    display: inline !important;
+}*/
+/*.fa-check, .cm-ul li div[data-v-92a164f6]:hover {
+    background-color: #666;
+    color: #fff;
+}*/
 .cm-ul li[data-v-92a164f6] {
         font-size: 12px !important;
     letter-spacing: .2px;

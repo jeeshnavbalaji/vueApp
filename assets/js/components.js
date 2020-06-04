@@ -231,6 +231,22 @@ var tableData = new Vue({
 		        tableData.blacklistIpGroupNames.push(blacklistGroupObj[0].name)
 		   }
 		}
+//		adding icon to context menu group names
+		var icon = "fa fa-check";
+		for(i in tableData.allWhiteListAndBlackListGroups) {
+            for(j in tableData.allWhiteListAndBlackListGroups[i].children) {
+                if(tableData.allWhiteListAndBlackListGroups[i].text.toLowerCase() === 'whitelist'){
+                    if(tableData.whitelistIpGroupNames.includes(tableData.allWhiteListAndBlackListGroups[i].children[j].text)){
+                        tableData.allWhiteListAndBlackListGroups[i].children[j].icon = icon;
+                    }
+                }
+                if(tableData.allWhiteListAndBlackListGroups[i].text.toLowerCase() === 'blacklist'){
+                    if(tableData.blacklistIpGroupNames.includes(tableData.allWhiteListAndBlackListGroups[i].children[j].text)){
+                        tableData.allWhiteListAndBlackListGroups[i].children[j].icon = icon;
+                    }
+                }
+            }
+		}
 		console.log("Whitelist Group names that exist in given IP->"+tableData.whitelistIpGroupNames)
 		console.log("Blacklist Group names that exist in given IP->"+tableData.blacklistIpGroupNames)
 	},
@@ -311,6 +327,7 @@ var tableData = new Vue({
 				});
 				$('#content').removeClass('hidden');
 				$('#gmcKeyPage').addClass('hidden');
+				$("#apiErroMessage").addClass('hidden');
 				getPolicies();
 				getAllCountries();
 				getAllWhitelists();
@@ -320,6 +337,7 @@ var tableData = new Vue({
 				// $.growl.warning({
 				// 	message: request.responseText
 				// });
+				$("#apiErroMessage").removeClass('hidden');
 				$("#apiErroMessage").text("(Please provide proper APIKEY)");
 				$("#apiErroMessage").addClass("error");
 			}
@@ -332,6 +350,7 @@ var tableData = new Vue({
 	saveGmcKeyCancle: function (){
 		$('#content').removeClass('hidden');
 		$('#gmcKeyPage').addClass('hidden');
+		$("#apiErroMessage").addClass('hidden');
 	},
 	logout: function () {
 			$('#content').addClass('hidden');
@@ -1434,9 +1453,10 @@ var getAllWhitelists = function () {
 					tableData.allWhiteList = data;
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
-						if (tableData.allWhiteList[i].type == 'manual'){
+						if (tableData.allWhiteList[i].type == 'manual' && !tableData.allWhiteList[i].name.toLowerCase().includes('bandura')){
 							whiteListGroup = {
 								text: tableData.allWhiteList[i].name,
+								icon: '',
 								children: [
 									{
 										text: 'Add'
@@ -1559,7 +1579,7 @@ var getEachBlacklistGroupIpAddress = function() {
 	             });
 		}
 	}
-	console.log("whitelist group ips->"+tableData.listOfBlacklistGroupIpObjArray)
+	console.log("Blacklist group ips->"+tableData.listOfBlacklistGroupIpObjArray)
 }
 
 var getGropeIps = function(dataToBeSent) {
