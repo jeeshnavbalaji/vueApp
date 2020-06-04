@@ -100,7 +100,7 @@ var tableData = new Vue({
 	  query:'',
 	  emailAlertArray:'',
 	  emailAlertSendLog:'daily',
-	  emailAlertdayOfWeek:'',
+	  emailAlertdayOfWeek:'sunday',
 	  emailAlertTime:'',
 	  emailAlertFileFormat:'csv',
 	  emailAlertChecked:'',
@@ -169,7 +169,8 @@ var tableData = new Vue({
 	  listOfWhitelistGroupIPObjArray: [],
 	  listOfBlacklistGroupIpObjArray:[],
 	  whitelistIpGroupNames: [],
-	  blacklistIpGroupNames: []
+	  blacklistIpGroupNames: [],
+	  apiKeySubmit:'',
 	},
   //components: {dateRangePicker},
    methods: {
@@ -281,10 +282,10 @@ var tableData = new Vue({
 			$('#logout').removeClass('hidden');
 			$('#lblLoginErrMsg').addClass('hidden');
 			setURL("packet");
-			getPolicies();
-			getAllCountries();
-			getAllWhitelists();
-			getAllBlacklists();
+			// getPolicies();
+			// getAllCountries();
+			// getAllWhitelists();
+			// getAllBlacklists();
 			},
 			error: function (request, status, error) {
 				console.log(status);
@@ -292,18 +293,80 @@ var tableData = new Vue({
 			}
 		});
 	},
+
+	saveGmcKey: function () {
+		dataObject = { "apikey": tableData.apiKeySubmit }
+		$.ajax({
+			url: serviceApiUrl+"/gmckey",
+			type: 'post',
+			data: JSON.stringify(dataObject),
+			headers: {
+				"Content-Type": 'application/json',
+				"Authorization": "Token "+window.localStorage.getItem('token')
+			},
+			success: function (data) {
+				$.growl({
+					title: "Success",
+					message:"Valid Apikey"
+				});
+				$('#content').removeClass('hidden');
+				$('#gmcKeyPage').addClass('hidden');
+				getPolicies();
+				getAllCountries();
+				getAllWhitelists();
+				getAllBlacklists();
+			},
+			error: function (request, status, error) {
+				// $.growl.warning({
+				// 	message: request.responseText
+				// });
+				$("#apiErroMessage").text("(Please provide proper APIKEY)");
+				$("#apiErroMessage").addClass("error");
+			}
+		});
+	},
+	setGMCKey: function (){
+		$('#content').addClass('hidden');
+		$('#gmcKeyPage').removeClass('hidden');
+	},
+	saveGmcKeyCancle: function (){
+		$('#content').removeClass('hidden');
+		$('#gmcKeyPage').addClass('hidden');
+	},
 	logout: function () {
 			$('#content').addClass('hidden');
-				$('#logout').addClass('hidden');
+			$('#logout').addClass('hidden');
 			$('#login').removeClass('hidden');
 			$('#editEmailAlert').addClass('hidden');
 			$('#emailAlert').addClass('hidden');
+			$('#gmcKeyPage').addClass('hidden');
 			window.localStorage.removeItem('token');
 	},
 	setEmailAlert: function (){
 		resetEmailAlertData();
 		$('#content').addClass('hidden');
 		$('#emailAlert').removeClass('hidden');
+		$('#emailAlertCheckAll').prop('checked',true);
+
+		$('#emailPacketSourceIp').attr('disabled', true);
+		$('#emailPacketResourceGroup').attr('disabled', true);
+		$('#emailPacketList').attr('disabled', true);
+		$('#emailPacketReason').attr('disabled', true);
+		$('#emailPacketCategory').attr('disabled', true);
+		$('#emailPacketAction').attr('disabled', true);
+		$('#emailPacketDirection').attr('disabled', true);
+		$('#emailPacketDestinationIp').attr('disabled', true);
+		$('#emailPacketDevice').attr('disabled', true);
+		$('#emailPacketProtocol').attr('disabled', true);
+		$('#emailPacketASN').attr('disabled', true);
+		$('#emailPacketCountry').attr('disabled', true);
+		$('#emailDomainValue').attr('disabled', true);
+		$('#emailDomainProtocol').attr('disabled', true);
+		$('#emailDomainSource').attr('disabled', true);
+		$('#emailDomainDestination').attr('disabled', true);
+		$('#emailDomainAction').attr('disabled', true);
+		$('#emailDomainReason').attr('disabled', true);
+		$('#emailDomainDevice').attr('disabled', true);
 	},
 	emailAlertCancle: function (){
 		resetEmailAlertData();
@@ -318,10 +381,46 @@ var tableData = new Vue({
 		if(isEmailFieldSelected(getLogObject(type))) {
 			alert('Selected '+type+' filds are not saved');
 		}
+		// emailpacketdomainlog();
+		// $('#emailAlertCheckAll').prop('checked',true);
 		resetEmailAlertData();
 		tableData.emailAlertTabName = actualType;
 	},
 	saveEmailAlert: function (){
+		tableData.emailAlertChecked = 'False'
+		var email_val = $('#emailAlert input[type="email"]').val();
+		var time_val = $('#emailAlert input[type="time"]').val();
+		var country_val = $('#emailAlert emailAlertFieldsDropdown').val();
+		var include_all_loginfo = $('#emailAlert input[type="checkbox"]').val();
+		var email_bool = false;
+		var time_bool = false;
+
+	    if(email_val == "" || email_val == null){
+	        $("#email-error").text("(Email can't be empty)");
+	        $("#email-error").addClass("error");
+			email_bool = false
+	    } else if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email_val)))
+		{
+			$("#email-error").text("(Enter valid Email)");
+			$("#email-error").addClass("error");
+			email_bool = false
+		} else {
+			$("#email-error").text("");
+			$("#email-error").removeClass("error");
+			email_bool = true
+	    }
+	    if (time_val == "" || time_val == null){
+	        $("#time-error").text("(Time Field can't be empty)");
+	        $("#time-error").addClass("error");
+	        time_bool = false
+	    } else {
+			$("#time-error").text("");
+			$("#time-error").removeClass("error");
+			time_bool = true
+	    }
+	    if (include_all_loginfo == 'on'){
+			tableData.emailAlertChecked = 'True'
+	    }
 		if(tableData.emailAlertChecked) {
 			tableData.emailAlertTabName = 'packet';
 		}
@@ -342,28 +441,31 @@ var tableData = new Vue({
 			"packet": packetFieldsObject,
 			"logType": tableData.emailAlertTabName
 		};
-		$.ajax({
-			url: serviceApiUrl+"/emailalert",
-			type: 'post',
-			data: JSON.stringify(dataObject),
-			headers: {
-				"Content-Type": 'application/json',
-				"Authorization": "Token "+window.localStorage.getItem('token')
-			},
-			success: function (data) {
-				$.growl({
-					title: "Success",
-					message:"Enabled Email Alert"
-				});
-				$('#content').removeClass('hidden');
-				$('#emailAlert').addClass('hidden');
-			},
-			error: function (request, status, error) {
-				$.growl.warning({
-					message:"Something went wrong! "+error
-				});
-			}
-		});
+		if (email_bool && time_bool) {
+			$.ajax({
+				url: serviceApiUrl+"/emailalert",
+				type: 'post',
+				data: JSON.stringify(dataObject),
+				headers: {
+					"Content-Type": 'application/json',
+					"Authorization": "Token "+window.localStorage.getItem('token')
+				},
+				success: function (data) {
+					$.growl({
+						title: "Success",
+						message:"Enabled Email Alert"
+					});
+					$('#content').removeClass('hidden');
+					$('#emailAlert').addClass('hidden');
+				},
+				error: function (request, status, error) {
+					$.growl.warning({
+						message:"Something went wrong! "+error
+					});
+					$('#emailAlertCheckAll').prop('checked',true);
+				}
+			});
+		}
 	},
 	editEmailAlert: function (){
 		var editUrl = serviceApiUrl+"/editemailalert"
@@ -453,7 +555,8 @@ var tableData = new Vue({
 		tableData.dstIpObj = {};
 		tableData.moduleQueryString='all',
 		tableData.actionTypeQueryString='all',
-		tableData.userTypeQueryString='all'
+		tableData.userTypeQueryString='all',
+		tableData.apiKeySubmit='',
 		getLogs(tableData.from);
 	},
 	dateFilter: function (inputName) {
@@ -1257,7 +1360,7 @@ var clearIpListGroups = function (){
 var resetEmailAlertData = function () {
 	  tableData.emailAlertArray='';
 	  tableData.emailAlertSendLog='daily';
-	  tableData.emailAlertdayOfWeek='';
+	  tableData.emailAlertdayOfWeek='sunday';
 	  tableData.emailAlertTime='';
 	  tableData.emailAlertFileFormat='csv';
 	  tableData.emailAlertChecked='';
@@ -1627,9 +1730,71 @@ $(function() {
 	$('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
       $(this).val('');
   });
-
 });
 
+function emailpacketdomainlog(){
+	if ($("#emailAlertCheckAll").is(":checked")){
+		// $('#emailAlertCheckAll').prop('checked',true);
+		tableData.emailAlertPacketCountry = 'Select Country';
+		tableData.emailAlertPacketDestination = '';
+		tableData.emailAlertPacketASN = '';
+		tableData.emailAlertPacketSource = '';
+		tableData.emailAlertPacketList = '';
+		tableData.emailAlertPacketProtocol = 'Select Protocol';
+		tableData.emailAlertPacketDirection = 'Select Direction';
+		tableData.emailAlertPacketAction = 'Select Action';
+		tableData.emailAlertPacketCategory = 'Select Category';
+		tableData.emailAlertPacketReason = 'Select Reason';
+		tableData.emailAlertPacketResourceGroup = 'Select Resource Group';
+		tableData.emailAlertPacketDevice = 'Select Device';
+		tableData.emailAlertDomainDomain = '';
+		tableData.emailAlertDomainProtocol='Select Protocol';
+		tableData.emailAlertDomainSource='';
+		tableData.emailAlertDomainDestination='';
+		tableData.emailAlertDomainAction='Select Action';
+		tableData.emailAlertDomainReason='Select Reason';
+		tableData.emailAlertDomainDevice='Select Device';
+		$('#emailPacketSourceIp').attr('disabled', true);
+		$('#emailPacketResourcxeGroup').attr('disabled', true);
+		$('#emailPacketList').attr('disabled', true);
+		$('#emailPacketReason').attr('disabled', true);
+		$('#emailPacketCategory').attr('disabled', true);
+		$('#emailPacketAction').attr('disabled', true);
+		$('#emailPacketDirection').attr('disabled', true);
+		$('#emailPacketDestinationIp').attr('disabled', true);
+		$('#emailPacketDevice').attr('disabled', true);
+		$('#emailPacketProtocol').attr('disabled', true);
+		$('#emailPacketASN').attr('disabled', true);
+		$('#emailPacketCountry').attr('disabled', true);
+		$('#emailDomainValue').attr('disabled', true);
+		$('#emailDomainProtocol').attr('disabled', true);
+		$('#emailDomainSource').attr('disabled', true);
+		$('#emailDomainDestination').attr('disabled', true);
+		$('#emailDomainAction').attr('disabled', true);
+		$('#emailDomainReason').attr('disabled', true);
+		$('#emailDomainDevice').attr('disabled', true);
+	} else {
+		$('#emailPacketSourceIp').attr('disabled', false);
+		$('#emailPacketResourceGroup').attr('disabled', false);
+		$('#emailPacketList').attr('disabled', false);
+		$('#emailPacketReason').attr('disabled', false);
+		$('#emailPacketCategory').attr('disabled', false);
+		$('#emailPacketAction').attr('disabled', false);
+		$('#emailPacketDirection').attr('disabled', false);
+		$('#emailPacketDestinationIp').attr('disabled', false);
+		$('#emailPacketDevice').attr('disabled', false);
+		$('#emailPacketProtocol').attr('disabled', false);
+		$('#emailPacketASN').attr('disabled', false);
+		$('#emailPacketCountry').attr('disabled', false);
+		$('#emailDomainValue').attr('disabled', false);
+		$('#emailDomainProtocol').attr('disabled', false);
+		$('#emailDomainSource').attr('disabled', false);
+		$('#emailDomainDestination').attr('disabled', false);
+		$('#emailDomainAction').attr('disabled', false);
+		$('#emailDomainReason').attr('disabled', false);
+		$('#emailDomainDevice').attr('disabled', false);
+	}
+}
 
 tableData.timezoneArr = ["America/Adak", "America/Anchorage","America/Anguilla","America/Aruba","America/Atikokan","America/Barbados","America/Belize","America/Blanc-Sablon","America/Boise","America/Cambridge_Bay","America/Cancun","America/Cayenne","America/Cayman","America/Chicago","America/Chihuahua","America/Costa_Rica","America/Creston","America/Danmarkshavn","America/Dawson","America/Dawson_Creek","America/Denver","America/Detroit","America/Edmonton","America/Fort_Nelson","America/Glace_Bay","America/Godthab","America/Goose_Bay","America/Grenada","America/Guadeloupe","America/Guatemala","America/Guyana","America/Halifax"," America/Hermosillo","America/Indiana/Indianapolis","America/Indiana/Knox","America/Indiana/Marengo","America/Indiana/Petersburg","America/Indiana/Tell_City"," America/Indiana/Vevay","America/Indiana/Vincennes","America/Indiana/Winamac","America/Inuvik","America/Iqaluit","America/Jamaica","America/Juneau"," America/Kentucky/Louisville"," America/Kentucky/Monticello","America/Los_Angeles","America/Lower_Princes","America/Matamoros","America/Mazatlan"," America/Menominee"," America/Merida"," America/Metlakatla"," America/Mexico_City"," America/Moncton"," America/Monterrey"," America/Montevideo"," America/Nassau","America/New_York"," America/Nipigon"," America/Nome","America/North_Dakota/Beulah","America/North_Dakota/Center","America/North_Dakota/New_Salem","America/Ojinaga","America/Panama"," America/Pangnirtung","America/Phoenix","America/Port-au-Prince","America/Puerto_Rico","America/Rainy_River","America/Rankin_Inlet","America/Regina","America/Resolute","America/Scoresbysund","America/Sitka","America/St_Johns"," America/St_Thomas","America/Swift_Current","America/Tegucigalpa","America/Thule","America/Thunder_Bay","America/Tijuana","America/Toronto","America/Vancouver","America/Whitehorse","America/Winnipeg","America/Yakutat","America/Yellowknife","Atlantic/Bermuda","Atlantic/Cape_Verde","Atlantic/Faroe","Atlantic/Reykjavik","Atlantic/Stanley","Australia/Adelaide","Australia/Brisbane","Australia/Broken_Hill","Australia/Currie","Australia/Darwin","Australia/Eucla","Australia/Hobart","Australia/Lindeman","Australia/Lord_Howe","Australia/Melbourne","Australia/Perth","Australia/Sydney","Europe/Amsterdam","Europe/Andorra","Europe/Astrakhan","Europe/Athens","Europe/Belgrade","Europe/Berlin","Europe/Bratislava","Europe/Brussels","Europe/Bucharest","Europe/Budapest","Europe/Busingen","Europe/Chisinau","Europe/Copenhagen","Europe/Dublin","Europe/Gibraltar","Europe/Guernsey","Europe/Helsinki","Europe/Isle_of_Man","Europe/Istanbul","Europe/Jersey","Europe/Kaliningrad","Europe/Kiev","Europe/Kirov","Europe/Lisbon","Europe/Ljubljana","Europe/London","Europe/Luxembourg","Europe/Madrid","Europe/Malta","Europe/Mariehamn","Europe/Minsk","Europe/Monaco","Europe/Moscow","Europe/Oslo","Europe/Paris","Europe/Podgorica","Europe/Prague","Europe/Riga","Europe/Rome","Europe/Samara","Europe/San_Marino","Europe/Saratov","Europe/Simferopol","Europe/Skopje","Europe/Sofia","Europe/Stockholm","Europe/Tallinn","Europe/Tirane","Europe/Ulyanovsk","Europe/Uzhgorod","Europe/Vaduz","Europe/Vatican","Europe/Vienna","Europe/Vilnius","Europe/Volgograd","Europe/Warsaw","Europe/Zagreb","Europe/Zaporozhye","Europe/Zurich","Indian/Antananarivo","Indian/Christmas","Indian/Cocos","Indian/Comoro","Indian/Kerguelen","Indian/Mahe","Indian/Maldives","Indian/Mauritius","Indian/Mayotte","Indian/Reunion","Pacific/Easter","Pacific/Fiji","Pacific/Gambier","Pacific/Guam","Pacific/Honolulu","Pacific/Marquesas","Pacific/Midway","Pacific/Pago_Pago","Pacific/Tahiti","Pacific/Wake","UTC"];
 
