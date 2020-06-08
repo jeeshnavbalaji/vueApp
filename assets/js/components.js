@@ -235,6 +235,7 @@ var tableData = new Vue({
 		var icon = "fa fa-check";
 		for(i in tableData.allWhiteListAndBlackListGroups) {
             for(j in tableData.allWhiteListAndBlackListGroups[i].children) {
+                tableData.allWhiteListAndBlackListGroups[i].children[j].icon = ''
                 if(tableData.allWhiteListAndBlackListGroups[i].text.toLowerCase() === 'whitelist'){
                     if(tableData.whitelistIpGroupNames.includes(tableData.allWhiteListAndBlackListGroups[i].children[j].text)){
                         tableData.allWhiteListAndBlackListGroups[i].children[j].icon = icon;
@@ -954,6 +955,23 @@ var tableData = new Vue({
 		document.body.appendChild(range);
 		if (tableData.type === 'packet') {
 			for (var row in tableData.rows) {
+				var whitelist_active_value = ''
+				var blacklist_active_value = ''
+				var whitelist_inactive_value = ''
+				var blacklist_inactive_value = ''
+				if(tableData.rows[row]._source.whitelists_active) {
+				    whitelist_active_value = tableData.rows[row]._source.whitelists_active
+				}
+				if(tableData.rows[row]._source.whitelists_inactive) {
+				    whitelist_inactive_value = tableData.rows[row]._source.whitelists_inactive
+				}
+				if(tableData.rows[row]._source.blacklists_active) {
+				    blacklist_active_value = tableData.rows[row]._source.blacklists_active
+				}
+				if(tableData.rows[row]._source.blacklists_inactive) {
+				    blacklist_inactive_value = tableData.rows[row]._source.blacklists_inactive
+				}
+
 				var rowObj = {
 					"timestamp":tableData.rows[row]._source.timestamp,
 					"country":tableData.rows[row]._source.Country,
@@ -965,9 +983,11 @@ var tableData = new Vue({
 					"action":tableData.rows[row]._source.Action,
 					"category":tableData.rows[row]._source.category,
 					"reason":tableData.rows[row]._source.reason,
-					"threatlist":tableData.rows[row]._source.threatlists,
-					"whitelist":tableData.rows[row]._source.whitelists,
-					"blacklist":tableData.rows[row]._source.blacklists,
+					"threatlists":tableData.rows[row]._source.threatlists,
+					"whitelists_active":whitelist_active_value,
+					"whitelists_inactive":whitelist_inactive_value,
+					"blacklists_active":blacklist_active_value,
+					"blacklists_inactive":blacklist_inactive_value,
 					"group":tableData.rows[row]._source.Group,
 					"hostName":tableData.rows[row]._source.HName
 				}
@@ -975,6 +995,22 @@ var tableData = new Vue({
 			}
 		} else if (tableData.type === 'domain') {
 			for (var row in tableData.rows) {
+				var whitelist_active_value = ''
+				var blacklist_active_value = ''
+				var whitelist_inactive_value = ''
+				var blacklist_inactive_value = ''
+				if(tableData.rows[row]._source.whitelists_active) {
+				    whitelist_active_value = tableData.rows[row]._source.whitelists_active
+				}
+				if(tableData.rows[row]._source.whitelists_inactive) {
+				    whitelist_inactive_value = tableData.rows[row]._source.whitelists_inactive
+				}
+				if(tableData.rows[row]._source.blacklists_active) {
+				    blacklist_active_value = tableData.rows[row]._source.blacklists_active
+				}
+				if(tableData.rows[row]._source.blacklists_matched) {
+				    blacklist_inactive_value = tableData.rows[row]._source.blacklists_matched
+				}
 				var rowObj = {
 					"timestamp":tableData.rows[row]._source.timestamp,
 					"domain":tableData.rows[row]._source.Domain,
@@ -983,6 +1019,10 @@ var tableData = new Vue({
 					"destination":tableData.rows[row]._source.DST,
 					"action":tableData.rows[row]._source.Action,
 					"reason":tableData.rows[row]._source.Reason,
+					"whitelists_active":whitelist_active_value,
+					"whitelists_inactive":whitelist_inactive_value,
+					"blacklists_active":blacklist_active_value,
+					"blacklists_inactive":blacklist_inactive_value,
 					"hostName":tableData.rows[row]._source.HName
 				}
 				obj.push(rowObj);
