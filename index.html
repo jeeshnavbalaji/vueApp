@@ -99,7 +99,10 @@
 						<option value="saturday">Sat</option>
 					</select>
 					<label>at</label>
-					<input type="time" name="time" value="23:59"/ v-model="emailAlertTime">(24-Hour Format)
+					<div class="timediv">
+						<div id="timeHour"><input type="number" class="timeinput" min="0" max="23" placeholder="23" value="00"></div>:
+						<div id="timeMinute"><input type="number" class="timeinput" min="0" max="59" placeholder="01" value="01"></div>
+					</div>(24-Hour Format)
 					<span id="time-error"></span>
 				</span><br>
 				<span>
@@ -110,7 +113,7 @@
 					</select>
 				</span><br>
 			
-				<input type="checkbox" id="emailAlertCheckAll" v-model="emailAlertChecked" onclick="emailpacketdomainlog()"> <label>Include All Log Information</label><br>
+				<input type="checkbox" id="emailAlertCheckAll" onclick="emailpacketdomainlog()"> <label>Include All Log Information</label><br><span id="includeAllOrPacketDomainError"></span>
 				<div>
 					<ul class="nav nav-tabs">
 						<li class="active">

@@ -460,6 +460,21 @@ textarea {
   background: #eee;
   border-radius: 4px;
 }
+
+.timediv {
+  background-color: white;
+  display: inline-flex;
+  border: 1px solid #ccc;
+  color: #555;
+}
+
+.timeinput {
+  border: none;
+  color: #555;
+  text-align: center;
+  width: 60px;
+}
+
 /*div#wrap-box > span input {
   border: 0;
   width: 100%;

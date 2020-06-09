@@ -52,6 +52,7 @@ var setURL = function (type) {
 	  tableData.actionTypeQueryString='all';
 	  tableData.userTypeQueryString='all';
 	  tableData.groupIPAddress='';
+	  tableData.emailAlertChecked = '';
 	if (type === "domain") {
 		esURL = esDomainURL;
 	} else if (type === "packet") {
@@ -427,20 +428,39 @@ var tableData = new Vue({
 		if(isEmailFieldSelected(getLogObject(type))) {
 			alert('Selected '+type+' filds are not saved');
 		}
-		// emailpacketdomainlog();
-		// $('#emailAlertCheckAll').prop('checked',true);
 		resetEmailAlertData();
 		tableData.emailAlertTabName = actualType;
 	},
 	saveEmailAlert: function (){
-		tableData.emailAlertChecked = 'False'
 		var email_val = $('#emailAlert input[type="email"]').val();
-		var time_val = $('#emailAlert input[type="time"]').val();
+		var time_hour = $('#emailAlert #timeHour input[type="number"]').val();
+		var time_minute = $('#emailAlert #timeMinute input[type="number"]').val();
 		var country_val = $('#emailAlert emailAlertFieldsDropdown').val();
 		var include_all_loginfo = $('#emailAlert input[type="checkbox"]').val();
 		var email_bool = false;
 		var time_bool = false;
-
+		var tabType;
+		var includeall_packet_domain = false;
+		if (time_minute == "" || time_minute == null){
+			$("#time-error").text("(Time Field can't be empty)");
+			$("#time-error").addClass("error");
+			time_bool = false
+		} else {
+		    $("#time-error").text("");
+		    // $("#time-error").removeClass("error");
+		    time_bool = true
+		}
+		if (time_minute > 59 || time_minute < 0) {
+		    $("#time-error").text("(Please select minutes in between 0 and 59)");
+		    $("#time-error").addClass("error");
+		}
+		if (time_hour > 23 || time_minute < 0) {
+		    $("#time-error").text("(Please select hours in between 0 and 23)");
+		    $("#time-error").addClass("error");
+		}
+		if ((time_hour != "" || time_hour != null) && (time_minute != "" || time_minute != null)){
+		    tableData.emailAlertTime = time_hour+":"+time_minute
+		}
 	    if(email_val == "" || email_val == null){
 	        $("#email-error").text("(Email can't be empty)");
 	        $("#email-error").addClass("error");
@@ -452,28 +472,30 @@ var tableData = new Vue({
 			email_bool = false
 		} else {
 			$("#email-error").text("");
-			$("#email-error").removeClass("error");
+			// $("#email-error").removeClass("error");
 			email_bool = true
-	    }
-	    if (time_val == "" || time_val == null){
-	        $("#time-error").text("(Time Field can't be empty)");
-	        $("#time-error").addClass("error");
-	        time_bool = false
-	    } else {
-			$("#time-error").text("");
-			$("#time-error").removeClass("error");
-			time_bool = true
-	    }
-	    if (include_all_loginfo == 'on'){
-			tableData.emailAlertChecked = 'True'
 	    }
 		if(tableData.emailAlertChecked) {
 			tableData.emailAlertTabName = 'packet';
 		}
 		if(tableData.emailAlertTabName == 'packet' && !tableData.emailAlertTabName) {
 			var packetFieldsObject = getLogObject('packet');
+			// tabType = 'packet';
 		} else if(tableData.emailAlertTabName == 'domain') {
 			var domainFieldsObject = getLogObject('domain');
+			// tabType = 'domain'
+		}
+		if(isEmailFieldSelected(getLogObject(tableData.emailAlertTabName))) {
+			var packetDomainTabValuesExist = true
+		}
+		if (!packetDomainTabValuesExist && !$("#emailAlertCheckAll").is(":checked")){
+			$("#includeAllOrPacketDomainError").text("(Please select IncludeAll or Packet/Domain)");
+			$("#includeAllOrPacketDomainError").addClass("error");
+			includeall_packet_domain = false
+		} else {
+			$("#includeAllOrPacketDomainError").text("");
+			tableData.emailAlertChecked = 'True'
+			includeall_packet_domain = true
 		}
 		var emailArray = tableData.emailAlertArray.split(",");
 		var dataObject = {
@@ -487,7 +509,7 @@ var tableData = new Vue({
 			"packet": packetFieldsObject,
 			"logType": tableData.emailAlertTabName
 		};
-		if (email_bool && time_bool) {
+		if (email_bool && time_bool && includeall_packet_domain) {
 			$.ajax({
 				url: serviceApiUrl+"/emailalert",
 				type: 'post',
@@ -508,7 +530,7 @@ var tableData = new Vue({
 					$.growl.warning({
 						message:"Something went wrong! "+error
 					});
-					$('#emailAlertCheckAll').prop('checked',true);
+					// $('#emailAlertCheckAll').prop('checked',true);
 				}
 			});
 		}
@@ -1826,11 +1848,22 @@ $(function() {
 	$('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
       $(this).val('');
   });
+
+	document.querySelectorAll('input[type=number]')
+	.forEach(e => e.oninput = () => {
+		// Always 2 digits
+		if (e.value.length >= 2) e.value = e.value.slice(0, 2);
+		// 0 on the left (doesn't work on FF)
+		if (e.value.length === 1) e.value = '0' + e.value;
+		// Avoiding letters on FF
+		if (!e.value) e.value = '00';
+	});
 });
 
 function emailpacketdomainlog(){
 	if ($("#emailAlertCheckAll").is(":checked")){
-		// $('#emailAlertCheckAll').prop('checked',true);
+		tableData.emailAlertChecked = 'True';
+		$("#includeAllOrPacketDomainError").text("");
 		tableData.emailAlertPacketCountry = 'Select Country';
 		tableData.emailAlertPacketDestination = '';
 		tableData.emailAlertPacketASN = '';
@@ -1870,6 +1903,7 @@ function emailpacketdomainlog(){
 		$('#emailDomainReason').attr('disabled', true);
 		$('#emailDomainDevice').attr('disabled', true);
 	} else {
+		tableData.emailAlertChecked = '';
 		$('#emailPacketSourceIp').attr('disabled', false);
 		$('#emailPacketResourceGroup').attr('disabled', false);
 		$('#emailPacketList').attr('disabled', false);
