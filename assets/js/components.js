@@ -171,6 +171,8 @@ var tableData = new Vue({
 	  whitelistIpGroupNames: [],
 	  blacklistIpGroupNames: [],
 	  apiKeySubmit:'',
+	  policyDeniedCountries: [],
+	  policyAllowedCountries:[]
 	},
   //components: {dateRangePicker},
    methods: {
@@ -268,12 +270,36 @@ var tableData = new Vue({
 			type = "denied";
 		}
 		countryAllowedOrDenied(policyObj.uuid, tableData.countryCode, type)
+
+		//Calling policies service from GMC to get the updated data
+		getPolicies();
     },
 	setCountryCode: function(country){
 		for(i in tableData.allCountryList){
 			if(Object.values(tableData.allCountryList[i]).includes(country)) {
 				tableData.countryCode = tableData.allCountryList[i].code;
 			}
+		}
+
+		//setting check/cross icon for the country policy based on allow or denied
+		var iconAllowed = "fa fa-check";
+		var iconDenied = "fa fa-times";
+		var countryListIndex = null;
+		for(i in tableData.policyAllowedCountries){
+		    if(tableData.policyAllowedCountries[i].allowed_countries.filter(allowed => tableData.countryCode.includes(allowed.code)).length > 0) {
+		        countryListIndex = tableData.countryList.findIndex(arr => arr.text === tableData.policyAllowedCountries[i].name)
+		        if(countryListIndex != -1){
+		            tableData.countryList[countryListIndex].icon = ''
+		            tableData.countryList[countryListIndex].icon = iconAllowed;
+		        }
+		    }
+		    if(tableData.policyDeniedCountries[i].denied_countries.filter(denied => tableData.countryCode.includes(denied.code)).length > 0) {
+		        countryListIndex = tableData.countryList.findIndex(arr => arr.text === tableData.policyDeniedCountries[i].name)
+		        if(countryListIndex != -1){
+		            tableData.countryList[countryListIndex].icon = ''
+		            tableData.countryList[countryListIndex].icon = iconDenied;
+		        }
+		    }
 		}
 		console.log("inside setCountryCode->"+tableData.countryCode);
 	},
@@ -1452,9 +1478,11 @@ var getPolicies = function () {
 	internalServiceGetData(dataToBeSent).then(data => {
 	    console.log(data);
 			tableData.countryPolicyList = data;
+			tableData.countryList = []
 			for(var i in tableData.countryPolicyList) {
 				countryListObj = {
 					text: tableData.countryPolicyList[i].name,
+					icon:'',
 					children: [
 						{
 							text: 'Allow',
@@ -1467,9 +1495,43 @@ var getPolicies = function () {
 			    tableData.countryList.push(countryListObj)
 			}
 			console.log('country policy list->'+tableData.countryList)
+			getPolicyAllowedCountries();
+			getPolicyDeniedCountries();
 	}).catch(error => {
 	    console.log(error)
 	});
+}
+
+var getPolicyAllowedCountries = function() {
+    tableData.policyAllowedCountries = []
+    for(var i in tableData.countryPolicyList){
+        dataToBeSent = {
+		"policyId": tableData.countryPolicyList[i].uuid,
+        "type": "allowed"
+	    }
+	    internalServiceGetData(dataToBeSent).then(data => {
+	        console.log("policy allowed countries"+data);
+	        tableData.policyAllowedCountries.push(data);
+	    }).catch(error => {
+	        console.log(error)
+	    });
+    }
+}
+
+var getPolicyDeniedCountries = function() {
+    tableData.policyDeniedCountries = []
+    for(var i in tableData.countryPolicyList){
+        dataToBeSent = {
+		"policyId": tableData.countryPolicyList[i].uuid,
+        "type": "denied"
+	    }
+	    internalServiceGetData(dataToBeSent).then(data => {
+	        console.log("policy denied countries"+data);
+	        tableData.policyDeniedCountries.push(data);
+	    }).catch(error => {
+	        console.log(error)
+	    });
+    }
 }
 
 var getAllCountries = function () {
@@ -1491,6 +1553,7 @@ var getAllWhitelists = function () {
 	internalServiceGetData(dataToBeSent).then(data => {
 	    console.log(data);
 					tableData.allWhiteList = data;
+					tableData.allWhiteListAndBlackListGroups = []
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
 						if (tableData.allWhiteList[i].type == 'manual' && !tableData.allWhiteList[i].name.toLowerCase().includes('bandura')){
@@ -1531,6 +1594,7 @@ var getAllBlacklists = function () {
 	internalServiceGetData(dataToBeSent).then(data => {
 	    console.log(data);
 					tableData.allBlackList = data;
+					tableData.allWhiteListAndBlackListGroups = []
 					blackListArray = []
 					for(var i in tableData.allBlackList) {
 						if (tableData.allBlackList[i].type == 'manual'){
@@ -1592,7 +1656,7 @@ var getEachWhiteListGroupIpAddress = function() {
 					"group_uuid": tableData.allWhiteList[i].uuid,
 					"grouptype": 'whitelist'
 				}
-				getGropeIps(dataToBeSent).then(data => {
+				getGroupIps(dataToBeSent).then(data => {
 	                console.log(data);
 					tableData.listOfWhitelistGroupIPObjArray.push(data)
 	             }).catch(error => {
@@ -1611,7 +1675,7 @@ var getEachBlacklistGroupIpAddress = function() {
 					"group_uuid": tableData.allBlackList[i].uuid,
 					"grouptype": 'blacklist'
 				}
-				getGropeIps(dataToBeSent).then(data => {
+				getGroupIps(dataToBeSent).then(data => {
 	                console.log(data);
 					tableData.listOfBlacklistGroupIpObjArray.push(data)
 	             }).catch(error => {
@@ -1622,7 +1686,7 @@ var getEachBlacklistGroupIpAddress = function() {
 	console.log("Blacklist group ips->"+tableData.listOfBlacklistGroupIpObjArray)
 }
 
-var getGropeIps = function(dataToBeSent) {
+var getGroupIps = function(dataToBeSent) {
 return new Promise((resolve, reject) => {
     $.ajax({
 		url: serviceApiUrl+"/checkipaddressgroup",
@@ -1643,34 +1707,6 @@ return new Promise((resolve, reject) => {
 	});
 })
 }
-
-
-
-//var checkIPAddressInGroups = function(listgroupid, listgrounpname){
-//	dataToBeSent = {
-//		"group_uuid": listgroupid,
-//		"grouptype": listgrounpname
-//	}
-//	$.ajax({
-//		url: serviceApiUrl+"/checkipaddressgroup",
-//		type: 'post',
-//		data: JSON.stringify(dataToBeSent),
-//		headers: {
-//			"Content-Type": 'application/json',
-//			"Authorization": "Token "+window.localStorage.getItem('token')
-//		},
-//		dataType: 'json',
-//		success: function (data) {
-//			console.log("mydata--------------------")
-//			console.log('policy data-> '+data);
-//			getData(data)
-//		},
-//		error: function (request, status, error) {
-//			console.log(status);
-//		}
-//
-//	});
-//}
 
 var countryAllowedOrDenied = function (policyId, countryCode, type) {
 	dataToBeSent = {

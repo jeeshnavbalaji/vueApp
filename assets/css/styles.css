@@ -310,6 +310,10 @@ textarea {
     color: green;
     display: inline !important;
 }
+.fa-times{
+    color: red;
+    display: inline !important;
+}
 /*.fa-check:hover{
     color: white;
     display: inline !important;
