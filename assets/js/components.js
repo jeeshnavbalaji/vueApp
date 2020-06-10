@@ -173,7 +173,8 @@ var tableData = new Vue({
 	  blacklistIpGroupNames: [],
 	  apiKeySubmit:'',
 	  policyDeniedCountries: [],
-	  policyAllowedCountries:[]
+	  policyAllowedCountries:[],
+	  provideGmcKeyWarning: 'Please provide your GMC api key'
 	},
   //components: {dateRangePicker},
    methods: {
@@ -215,6 +216,11 @@ var tableData = new Vue({
 		getAllBlacklists();
 	},
 	getIPAddress: function(ip){
+		if(!window.localStorage.getItem('gmc_key')){
+		     $.growl.warning({
+				 	message: tableData.provideGmcKeyWarning
+			});
+		}
 		tableData.groupIPAddress = ip;
 		tableData.whitelistIpGroupNames = []
 		tableData.blacklistIpGroupNames = []
@@ -276,6 +282,11 @@ var tableData = new Vue({
 		getPolicies();
     },
 	setCountryCode: function(country){
+		if(!window.localStorage.getItem('gmc_key')){
+		     $.growl.warning({
+				 	message: tableData.provideGmcKeyWarning
+			});
+		}
 		for(i in tableData.allCountryList){
 			if(Object.values(tableData.allCountryList[i]).includes(country)) {
 				tableData.countryCode = tableData.allCountryList[i].code;
@@ -319,17 +330,25 @@ var tableData = new Vue({
 			dataType: 'json',
 			success: function (data) {
 				window.localStorage.setItem("token", data.token);
-				console.log(window.localStorage.getItem('token'));
+				window.localStorage.setItem("gmc_key", data.gmc_api_key);
+				console.log(window.localStorage.getItem('token')+", gmc key->"+window.localStorage.getItem('gmc_key'));
 				$('#content').removeClass('hidden');
 				
 			$('#login').addClass('hidden');
 			$('#logout').removeClass('hidden');
 			$('#lblLoginErrMsg').addClass('hidden');
 			setURL("packet");
-			// getPolicies();
-			// getAllCountries();
-			// getAllWhitelists();
-			// getAllBlacklists();
+			if(window.localStorage.getItem('gmc_key')){
+			    tableData.allWhiteListAndBlackListGroups = []
+			    getPolicies();
+			    getAllCountries();
+			    getAllWhitelists();
+			    getAllBlacklists();
+			} else {
+			    $.growl.notice({
+						message:"Set your GMC api key using API Config button"
+				});
+			}
 			},
 			error: function (request, status, error) {
 				console.log(status);
@@ -356,6 +375,8 @@ var tableData = new Vue({
 				$('#content').removeClass('hidden');
 				$('#gmcKeyPage').addClass('hidden');
 				$("#apiErroMessage").addClass('hidden');
+				window.localStorage.setItem('gmc_key', tableData.apiKeySubmit)
+				tableData.allWhiteListAndBlackListGroups = []
 				getPolicies();
 				getAllCountries();
 				getAllWhitelists();
@@ -1575,7 +1596,7 @@ var getAllWhitelists = function () {
 	internalServiceGetData(dataToBeSent).then(data => {
 	    console.log(data);
 					tableData.allWhiteList = data;
-					tableData.allWhiteListAndBlackListGroups = []
+					//tableData.allWhiteListAndBlackListGroups = []
 					whiteListArray = []
 					for(var i in tableData.allWhiteList) {
 						if (tableData.allWhiteList[i].type == 'manual' && !tableData.allWhiteList[i].name.toLowerCase().includes('bandura')){
@@ -1616,7 +1637,7 @@ var getAllBlacklists = function () {
 	internalServiceGetData(dataToBeSent).then(data => {
 	    console.log(data);
 					tableData.allBlackList = data;
-					tableData.allWhiteListAndBlackListGroups = []
+					//tableData.allWhiteListAndBlackListGroups = []
 					blackListArray = []
 					for(var i in tableData.allBlackList) {
 						if (tableData.allBlackList[i].type == 'manual'){
