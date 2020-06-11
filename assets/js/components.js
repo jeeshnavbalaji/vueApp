@@ -1429,7 +1429,8 @@ var setDataObject = function (queryString) {
 		var queryStringObj = {
 					"query_string" : {
 						"fields" : tableData.fieldsArr,
-						"query" : queryString
+						"query" : queryString,
+						"default_operator": "AND"
 					}
 				}
 	   dataToBeSent.query.bool.must.push(queryStringObj);
