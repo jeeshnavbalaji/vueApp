@@ -35,6 +35,7 @@ var setURL = function (type) {
 	  tableData.dateRangeObj= {};
 	  tableData.sourceIpObj = {};
 	  tableData.dstIpObj = {};
+	  tableData.messageQueryObj = {};
 	  tableData.timestampArr= [];
 	  tableData.protocolArr= [];
 	  tableData.actionArr=[];
@@ -127,6 +128,7 @@ var tableData = new Vue({
 	  emailAlertTabName: 'packet',
 	  dateRangeObj: {},
 	  sourceIpObj: {},
+	  messageQueryObj: {},
 	  dstIpObj: {},
 	  fieldsArr: [],
 	  typeDropdownArr: [],
@@ -642,6 +644,7 @@ var tableData = new Vue({
 		tableData.dateRangeObj = {};
 		tableData.sourceIpObj = {};
 		tableData.dstIpObj = {};
+		tableData.messageQueryObj = {};
 		tableData.moduleQueryString='all',
 		tableData.actionTypeQueryString='all',
 		tableData.userTypeQueryString='all',
@@ -690,6 +693,7 @@ var tableData = new Vue({
 			tableData.dateRangeObj = {};
 			tableData.sourceIpObj={};
 			tableData.dstIpObj={};
+			tableData.messageQueryObj={};
 			if(tableData.dateQueryString) {
 				dateArr = tableData.dateQueryString.split("-");
 				if (dateArr.length > 1) {
@@ -741,12 +745,21 @@ var tableData = new Vue({
 				tableData.fieldsArr.push("Priority");
 			}
 			if(tableData.messageQueryString && !tableData.messageQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.messageQueryString;
-				} else {
-					tableData.query = tableData.messageQueryString;
-				}
-				tableData.fieldsArr.push("Message");
+//				if(tableData.query){
+//					tableData.query = tableData.query+" AND "+tableData.messageQueryString;
+//				} else {
+//					tableData.query = tableData.messageQueryString;
+//				}
+//				tableData.fieldsArr.push("Message");
+                 tableData.messageQueryObj = {
+                    "simple_query_string": {
+                        "query": tableData.messageQueryString+'*',
+                        "fields": [
+                            "Message", "messageVal"
+                        ],
+                        "default_operator": "and"
+                    }
+                 }
 			}
 			if(tableData.listQueryString && !tableData.listQueryString.includes("all")) {
 				if(tableData.query){
@@ -909,7 +922,7 @@ var tableData = new Vue({
 			}
 			/*tableData.query = tableData.dateQueryString+" "+tableData.domainQueryString+" "+tableData.protoQueryString+" "+tableData.sourceQueryString+" "+tableData.destinationQueryString+" "+tableData.actionQueryString+" "+tableData.reasonQueryString+" "+tableData.deviceQueryString;*/
 			//tableData.query = tableData.query.replace(/ /g,"")
-			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString) {
+			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString) {
 				queryFilter(tableData.query, tableData.pageSize);
 			} else{
 				tableData.getRrecentOrOldDocs('desc');
@@ -931,7 +944,7 @@ var tableData = new Vue({
 		var queryObj = setDataObject(tableData.query);
 		if(sortType === "asc") {
 			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString 
-				|| tableData.destinationQueryString) {
+				|| tableData.destinationQueryString || tableData.messageQueryString) {
 				dataToBeSent = {
 					"query": queryObj.query,
 					"sort": [{
@@ -952,7 +965,7 @@ var tableData = new Vue({
 			
 		} else if(sortType === "desc") {
 			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString 
-				|| tableData.destinationQueryString) {
+				|| tableData.destinationQueryString || tableData.messageQueryString) {
 				dataToBeSent = {
 					"query": queryObj.query,
 					"sort": [{
@@ -1005,7 +1018,7 @@ var tableData = new Vue({
 	},
 	setPageSize: function (event) {
 		if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString 
-				|| tableData.destinationQueryString) {
+				|| tableData.destinationQueryString || tableData.messageQueryString) {
 			queryFilter(tableData.query, tableData.pageSize)
 		} else {
 			getLogs(tableData.from);
@@ -1183,7 +1196,9 @@ var applyNodata = function () {
 var validateQueryStrings = function () {
 	var queryValidation = false;
 	if(!tableData.dateQueryString && !tableData.domainQueryString && (!tableData.protoQueryString || tableData.protoQueryString === 'all') && 
-		!tableData.sourceQueryString && !tableData.destinationQueryString && (!tableData.actionQueryString || tableData.actionQueryString === 'all') && (!tableData.reasonQueryString || tableData.reasonQueryString === 'all') && (!tableData.deviceQueryString || tableData.deviceQueryString === 'all') && !tableData.countryQueryString) {
+		!tableData.sourceQueryString && !tableData.destinationQueryString && (!tableData.actionQueryString || tableData.actionQueryString === 'all') &&
+		(!tableData.reasonQueryString || tableData.reasonQueryString === 'all') && (!tableData.deviceQueryString || tableData.deviceQueryString === 'all') &&
+		!tableData.countryQueryString) {
 			queryValidation = false;
 	} else { queryValidation = true;}
 	return queryValidation;
@@ -1191,7 +1206,7 @@ var validateQueryStrings = function () {
 
 var getLogs = function(from) {
 	if(tableData.query.length > 0 || tableData.dateQueryString || tableData.sourceQueryString 
-		|| tableData.destinationQueryString){
+		|| tableData.destinationQueryString || tableData.messageQueryString){
 		var url = "";
 	if(from > 0) {
 		url = esURL+"?from="+from+"&size="+tableData.pageSize+"&pretty=true";
@@ -1392,7 +1407,7 @@ var setDataObject = function (queryString) {
 			}
 		}
 	};
-	if (tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString) {
+	if (tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString) {
 		var rangeObj = {
 			"range": tableData.dateRangeObj
 		}
@@ -1405,6 +1420,9 @@ var setDataObject = function (queryString) {
 			}
 			if(tableData.destinationQueryString) {
 				dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+			}
+			if(tableData.messageQueryString) {
+			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
 			}
 		} else {
 			var queryStringObj = {
@@ -1423,6 +1441,9 @@ var setDataObject = function (queryString) {
 			}
 			if(tableData.destinationQueryString) {
 				dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+			}
+			if(tableData.messageQueryString) {
+			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
 			}
 		}
 	} else {
