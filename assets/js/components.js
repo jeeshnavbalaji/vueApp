@@ -755,8 +755,11 @@ var tableData = new Vue({
 					tableData.query = tableData.listQueryString;
 				}
 				tableData.fieldsArr.push("threatlists");
-				tableData.fieldsArr.push("whitelists");
-				tableData.fieldsArr.push("blacklists");
+				tableData.fieldsArr.push("whitelists_active");
+				tableData.fieldsArr.push("blacklists_active");
+				tableData.fieldsArr.push("whitelists_inactive");
+				tableData.fieldsArr.push("blacklists_inactive");
+				tableData.fieldsArr.push("blacklists_matched");
 			}
 			if(tableData.domainQueryString && !tableData.domainQueryString.includes("all")) {
 				if(tableData.query){
@@ -1407,7 +1410,8 @@ var setDataObject = function (queryString) {
 			var queryStringObj = {
 					"query_string" : {
 						"fields" : tableData.fieldsArr,
-						"query" : queryString
+						"query" : queryString,
+						"default_operator": "AND"
 					}
 				}
 			dataToBeSent.query.bool.must.push(queryStringObj);
