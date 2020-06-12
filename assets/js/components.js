@@ -498,9 +498,6 @@ var tableData = new Vue({
 			// $("#email-error").removeClass("error");
 			email_bool = true
 	    }
-		if(tableData.emailAlertChecked) {
-			tableData.emailAlertTabName = 'packet';
-		}
 		if(tableData.emailAlertTabName == 'packet' && !tableData.emailAlertTabName) {
 			var packetFieldsObject = getLogObject('packet');
 			// tabType = 'packet';
