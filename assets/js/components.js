@@ -449,7 +449,7 @@ var tableData = new Vue({
 	},
 	emailAlertFieldSelectPrompt: function (actualType,type){
 		if(isEmailFieldSelected(getLogObject(type))) {
-			alert('Selected '+type+' filds are not saved');
+			alert('Selected '+type+' fields are not saved');
 		}
 		resetEmailAlertData();
 		tableData.emailAlertTabName = actualType;
