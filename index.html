@@ -150,13 +150,15 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">SOURCE IP</label>
-								<input class="emailAlertInputWidth" id="emailPacketSourceIp" v-model="emailAlertPacketSource" placeholder="Enter Source IP" disabled/>
+								<input class="emailAlertInputWidth" id="emailPacketSourceIp" v-model="emailAlertPacketSource" placeholder="Enter Source IP"/><br/>
+								<span style="padding-left: 240px;" id="emailAlertPacketSourceIpError"></span>
 							</div>
 						</div>
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">DESTINATION IP</label>
 								<input class="emailAlertInputWidth" id="emailPacketDestinationIp"v-model="emailAlertPacketDestination" placeholder="Enter Destination IP"/>
+								<span style="padding-left: 240px;" id="emailAlertPacketDestinationIpError"></span><br/>
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">DIRECTION</label>
@@ -238,11 +240,13 @@
 						<div class="row emailAlertRowMargin">
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">SOURCE</label>
-								<input class="emailAlertInputWidth" id="emailDomainSource" v-model="emailAlertDomainSource" placeholder="Enter Source IP"/>
+								<input class="emailAlertInputWidth" id="emailDomainSource" v-model="emailAlertDomainSource" placeholder="Enter Source IP"/><br/>
+								<span style="padding-left: 240px;" id="emailAlertDomainSourceIpError"></span>
 							</div>
 							<div class="col-sm-6">
 								<label class="emailAlertTabFields">DESTINATION</label>
-								<input class="emailAlertInputWidth" id="emailDomainDestination" v-model="emailAlertDomainDestination" placeholder="Enter Destination IP"/>
+								<input class="emailAlertInputWidth" id="emailDomainDestination" v-model="emailAlertDomainDestination" placeholder="Enter Destination IP"/><br/>
+								<span style="padding-left: 240px;" id="emailAlertDomainDestinationIpError"></span>
 							</div>
 						</div>
 						<div class="row emailAlertRowMargin">
@@ -421,9 +425,11 @@
 										</th>
 										<th>Source IP
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
+											<span id="packetIpSourceError"></span>
 										</th>
 										<th>Destination IP
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
+											<span id="packetIpDestinationError"></span>
 										</th>
 										<th><i class="fa fa-arrows-h" aria-hidden="true"></i>
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="directionQueryString">        
@@ -524,9 +530,11 @@
 										</th>
 										<th>Source
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
+											<span id="domainIpSourceError"></span>
 										</th>
 										<th>Destination
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
+											<span id="domainIpDestinationError"></span>
 										</th>
 										<th><i class="fa fa-gavel" aria-hidden="true"></i>
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="actionQueryString">        

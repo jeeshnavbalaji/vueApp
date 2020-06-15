@@ -417,7 +417,8 @@ var tableData = new Vue({
 		$('#content').addClass('hidden');
 		$('#emailAlert').removeClass('hidden');
 		$('#emailAlertCheckAll').prop('checked',true);
-
+		$("#email-error").text("");
+		$("#includeAllOrPacketDomainError").text("");
 		$('#emailPacketSourceIp').attr('disabled', true);
 		$('#emailPacketResourceGroup').attr('disabled', true);
 		$('#emailPacketList').attr('disabled', true);
@@ -464,13 +465,17 @@ var tableData = new Vue({
 		var time_bool = false;
 		var tabType;
 		var includeall_packet_domain = false;
+		var email_packet_source = $("#emailPacketSourceIp").val();
+		var email_packet_destination = $("#emailPacketDestinationIp").val();
+		var email_domain_source = $("#emailDomainSource").val();
+		var email_domain_destination = $("#emailDomainDestination").val();
+		var ip_subnet_bool = true
 		if (time_minute == "" || time_minute == null){
 			$("#time-error").text("(Time Field can't be empty)");
 			$("#time-error").addClass("error");
 			time_bool = false
 		} else {
 		    $("#time-error").text("");
-		    // $("#time-error").removeClass("error");
 		    time_bool = true
 		}
 		if (time_minute > 59 || time_minute < 0) {
@@ -495,15 +500,13 @@ var tableData = new Vue({
 			email_bool = false
 		} else {
 			$("#email-error").text("");
-			// $("#email-error").removeClass("error");
 			email_bool = true
 	    }
+
 		if(tableData.emailAlertTabName == 'packet' && !tableData.emailAlertTabName) {
 			var packetFieldsObject = getLogObject('packet');
-			// tabType = 'packet';
 		} else if(tableData.emailAlertTabName == 'domain') {
 			var domainFieldsObject = getLogObject('domain');
-			// tabType = 'domain'
 		}
 		if(isEmailFieldSelected(getLogObject(tableData.emailAlertTabName))) {
 			var packetDomainTabValuesExist = true
@@ -517,6 +520,45 @@ var tableData = new Vue({
 			tableData.emailAlertChecked = 'True'
 			includeall_packet_domain = true
 		}
+		if (includeall_packet_domain){
+			if ((email_packet_source != "") && !IpSubnetmaskValidator(email_packet_source)){
+				$("#emailAlertPacketSourceIpError").text("(Please enter valid IP)");
+				$("#emailAlertPacketSourceIpError").addClass("error");
+					ip_subnet_bool = false;
+			} else {
+				$("#emailAlertPacketSourceIpError").text("");
+			}
+	    }
+
+		if (includeall_packet_domain){
+			if ((email_packet_destination != "") && !IpSubnetmaskValidator(email_packet_destination)){
+				$("#emailAlertPacketDestinationIpError").text("(Please enter valid IP)");
+				$("#emailAlertPacketDestinationIpError").addClass("error");
+					ip_subnet_bool = false;
+			} else {
+				$("#emailAlertPacketDestinationIpError").text("");
+			}
+	    }
+
+		if (includeall_packet_domain){
+			if ((email_domain_source != "") && !IpSubnetmaskValidator(email_domain_source)){
+				$("#emailAlertDomainSourceIpError").text("(Please enter valid IP)");
+				$("#emailAlertDomainSourceIpError").addClass("error");
+					ip_subnet_bool = false;
+			} else {
+				$("#emailAlertDomainSourceIpError").text("");
+			}
+	    }
+
+		if (includeall_packet_domain){
+			if ((email_domain_destination != "") && !IpSubnetmaskValidator(email_domain_destination)){
+				$("#emailAlertDomainDestinationIpError").text("(Please enter valid IP)");
+				$("#emailAlertDomainDestinationIpError").addClass("error");
+				ip_subnet_bool = false;
+			} else {
+				$("#emailAlertDomainDestinationIpError").text("");
+			}
+	    }
 		var emailArray = tableData.emailAlertArray.split(",");
 		var dataObject = {
 			"email": emailArray,
@@ -647,6 +689,10 @@ var tableData = new Vue({
 		tableData.userTypeQueryString='all',
 		tableData.apiKeySubmit='',
 		getLogs(tableData.from);
+		$("#packetIpSourceError").text("");
+		$("#packetIpDestinationError").text("");
+		$("#domainIpSourceError").text("");
+		$("#domainIpDestinationError").text("");
 	},
 	dateFilter: function (inputName) {
 		$('input[name="'+inputName+'"]').daterangepicker({
@@ -684,7 +730,15 @@ var tableData = new Vue({
 		});
 		
 	},
-    getFromQuery: function (event) {	
+    getFromQuery: function (event) {
+			if (tableData.sourceQueryString == ''){
+				$("#domainIpSourceError").text("");
+				$("#packetIpSourceError").text("");
+			}
+			if (tableData.destinationQueryString == ''){
+				$("#domainIpDestinationError").text("");
+				$("#packetIpDestinationError").text("");
+			}
 			tableData.query = '';
 			tableData.fieldsArr = [];
 			tableData.dateRangeObj = {};
@@ -797,12 +851,26 @@ var tableData = new Vue({
 			}
 			if(tableData.sourceQueryString && !tableData.sourceQueryString.includes("all")) {
 				if(tableData.type == "domain") {
+					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
+						$("#domainIpSourceError").text("(Please enter valid IP)");
+						$("#domainIpSourceError").addClass("error");
+						return false;
+					} else {
+						$("#domainIpSourceError").text("");
+					}
 					tableData.sourceIpObj = {
 						 "term": {
 							"Source": tableData.sourceQueryString
 						}
 					}
 				} else if (tableData.type == "packet") {
+					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
+						$("#packetIpSourceError").text("(Please enter valid IP)");
+						$("#packetIpSourceError").addClass("error");
+						return false;
+					} else {
+						$("#packetIpSourceError").text("");
+					}
 					tableData.sourceIpObj = {
 						 "term": {
 							"source": tableData.sourceQueryString
@@ -812,12 +880,26 @@ var tableData = new Vue({
 			}
 			if(tableData.destinationQueryString && !tableData.destinationQueryString.includes("all")) {
 				if(tableData.type == "domain") {
+					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
+						$("#domainIpDestinationError").text("(Please enter valid IP)");
+						$("#domainIpDestinationError").addClass("error");
+						return false;
+					} else {
+						$("#domainIpDestinationError").text("");
+					}
 					tableData.dstIpObj = {
 						"term":{
 							"DST":tableData.destinationQueryString
 						}
 					}
 				} else if (tableData.type == "packet") {
+					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
+						$("#packetIpDestinationError").text("(Please enter valid IP)");
+						$("#packetIpDestinationError").addClass("error");
+						return false;
+					} else {
+						$("#packetIpDestinationError").text("");
+					}
 					tableData.dstIpObj = {
 						"term": {
 							"destination": tableData.destinationQueryString
@@ -918,7 +1000,6 @@ var tableData = new Vue({
 				tableData.fieldsArr.push("userVal");
 			}
 			/*tableData.query = tableData.dateQueryString+" "+tableData.domainQueryString+" "+tableData.protoQueryString+" "+tableData.sourceQueryString+" "+tableData.destinationQueryString+" "+tableData.actionQueryString+" "+tableData.reasonQueryString+" "+tableData.deviceQueryString;*/
-			//tableData.query = tableData.query.replace(/ /g,"")
 			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString) {
 				queryFilter(tableData.query, tableData.pageSize);
 			} else{
@@ -1497,6 +1578,19 @@ var isEmailFieldSelected = function (obj) {
 	}
 	return false;
 }
+
+var IpSubnetmaskValidator = function(searchTerm){
+	var ipSubnetregex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/([0-9]{1,45})$/
+	if (searchTerm.match(ipSubnetregex)){
+		return true;
+	}
+	return false;
+}
+
+var IpSubnetmaskErrorMessage = function(){
+	$("#packetIpSourceError").text("(Please enter valid IP)");
+	$("#packetIpSourceError").addClass("error");
+}
 var clearIpListGroups = function (){
       tableData.allBlackList= [];
 	  tableData.allBlackListGroups= [];
@@ -1535,6 +1629,10 @@ var resetEmailAlertData = function () {
 	  tableData.emailAlertDomainReason='Select Reason';
 	  tableData.emailAlertDomainDevice='Select Device';
 	  tableData.emailAlertTabName = 'packet';
+	  $("#emailAlertPacketSourceIpError").text("");
+	  $("#emailAlertPacketDestinationIpError").text("");
+	  $("#emailAlertDomainDestinationIpError").text("");
+	  $("#emailAlertDomainSourceIpError").text("");
 }
 
 var getPolicies = function () {
@@ -1906,6 +2004,10 @@ $(function() {
 
 function emailpacketdomainlog(){
 	if ($("#emailAlertCheckAll").is(":checked")){
+		$("#emailAlertPacketSourceIpError").text("");
+		$("#emailAlertPacketDestinationIpError").text("");
+		$("#emailAlertDomainDestinationIpError").text("");
+		$("#emailAlertDomainSourceIpError").text("");
 		tableData.emailAlertChecked = 'True';
 		$("#includeAllOrPacketDomainError").text("");
 		tableData.emailAlertPacketCountry = 'Select Country';
