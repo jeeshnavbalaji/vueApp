@@ -63,6 +63,10 @@ var setURL = function (type) {
 	} else if (type === "audit") {
 		esURL = esAuditURL;
 	}
+	$("#packetIpDestinationError").text("");
+	$("#domainIpDestinationError").text("");
+	$("#packetIpSourceError").text("");
+	$("#domainIpSourceError").text("");
 	getLogs(tableData.from);
 }
 
@@ -514,6 +518,10 @@ var tableData = new Vue({
 		if (!packetDomainTabValuesExist && !$("#emailAlertCheckAll").is(":checked")){
 			$("#includeAllOrPacketDomainError").text("(Please select IncludeAll or Packet/Domain)");
 			$("#includeAllOrPacketDomainError").addClass("error");
+			$("#emailAlertDomainDestinationIpError").text("");
+			$("#emailAlertPacketSourceIpError").text("");
+			$("#emailAlertPacketDestinationIpError").text("");
+			$("#emailAlertDomainSourceIpError").text("");
 			includeall_packet_domain = false
 		} else {
 			$("#includeAllOrPacketDomainError").text("");
@@ -524,7 +532,7 @@ var tableData = new Vue({
 			if ((email_packet_source != "") && !IpSubnetmaskValidator(email_packet_source)){
 				$("#emailAlertPacketSourceIpError").text("(Please enter valid IP)");
 				$("#emailAlertPacketSourceIpError").addClass("error");
-					ip_subnet_bool = false;
+				ip_subnet_bool = false;
 			} else {
 				$("#emailAlertPacketSourceIpError").text("");
 			}
@@ -739,6 +747,7 @@ var tableData = new Vue({
 				$("#domainIpDestinationError").text("");
 				$("#packetIpDestinationError").text("");
 			}
+			var source_destination_ip_check = true;
 			tableData.query = '';
 			tableData.fieldsArr = [];
 			tableData.dateRangeObj = {};
@@ -854,7 +863,7 @@ var tableData = new Vue({
 					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
 						$("#domainIpSourceError").text("(Please enter valid IP)");
 						$("#domainIpSourceError").addClass("error");
-						return false;
+						source_destination_ip_check = false;
 					} else {
 						$("#domainIpSourceError").text("");
 					}
@@ -867,7 +876,7 @@ var tableData = new Vue({
 					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
 						$("#packetIpSourceError").text("(Please enter valid IP)");
 						$("#packetIpSourceError").addClass("error");
-						return false;
+						source_destination_ip_check = false;
 					} else {
 						$("#packetIpSourceError").text("");
 					}
@@ -879,11 +888,12 @@ var tableData = new Vue({
 				}
 			}
 			if(tableData.destinationQueryString && !tableData.destinationQueryString.includes("all")) {
+
 				if(tableData.type == "domain") {
 					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
 						$("#domainIpDestinationError").text("(Please enter valid IP)");
 						$("#domainIpDestinationError").addClass("error");
-						return false;
+						source_destination_ip_check = false;
 					} else {
 						$("#domainIpDestinationError").text("");
 					}
@@ -896,7 +906,7 @@ var tableData = new Vue({
 					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
 						$("#packetIpDestinationError").text("(Please enter valid IP)");
 						$("#packetIpDestinationError").addClass("error");
-						return false;
+						source_destination_ip_check = false;
 					} else {
 						$("#packetIpDestinationError").text("");
 					}
@@ -906,6 +916,9 @@ var tableData = new Vue({
 						}
 					}
 				}
+			}
+			if (!source_destination_ip_check){
+				return false;
 			}
 			if(tableData.actionQueryString && tableData.actionQueryString !== "all") {
 				if(tableData.query){
