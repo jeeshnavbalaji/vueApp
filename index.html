@@ -425,11 +425,11 @@
 										</th>
 										<th>Source IP
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
-											<span id="packetIpSourceError"></span>
+											<span class="cidr-validation-error" style="margin-left:-120px" id="packetIpSourceError"></span>
 										</th>
 										<th>Destination IP
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
-											<span id="packetIpDestinationError"></span>
+											<span class="cidr-validation-error"  style="margin-left:-120px" id="packetIpDestinationError"></span>
 										</th>
 										<th><i class="fa fa-arrows-h" aria-hidden="true"></i>
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="directionQueryString">        
@@ -530,11 +530,11 @@
 										</th>
 										<th>Source
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="sourceQueryString" style="boarder:0px" placeholder="Search"/>
-											<span id="domainIpSourceError"></span>
+											<span class="cidr-validation-error" id="domainIpSourceError"></span>
 										</th>
 										<th>Destination
 											<input class="search-dropdown input-boarder" @change="getFromQuery($event)"  v-model="destinationQueryString" style="boarder:0px" placeholder="Search"/>
-											<span id="domainIpDestinationError"></span>
+											<span class="cidr-validation-error" id="domainIpDestinationError"></span>
 										</th>
 										<th><i class="fa fa-gavel" aria-hidden="true"></i>
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="actionQueryString">        

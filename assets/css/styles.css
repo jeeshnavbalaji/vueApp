@@ -332,6 +332,15 @@ textarea {
 .cm-ul li div[data-v-92a164f6] {
      padding: 0 1em 0 .5em !important;}
 
+/* ip address error styles */
+.cidr-validation-error {
+    font-size: 10px;
+    position: absolute;
+    background: white;
+    margin-top: 20px;
+    margin-left: -145px;
+}
+
 /*tooltip css*/
 
 .tooltip {

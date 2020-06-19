@@ -864,7 +864,7 @@ var tableData = new Vue({
 			if(tableData.sourceQueryString && !tableData.sourceQueryString.includes("all")) {
 				if(tableData.type == "domain") {
 					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
-						$("#domainIpSourceError").text("(Please enter valid CIDR)");
+						$("#domainIpSourceError").text("(Enter valid CIDR)");
 						$("#domainIpSourceError").addClass("error");
 						source_destination_ip_check = false;
 					} else {
@@ -877,7 +877,7 @@ var tableData = new Vue({
 					}
 				} else if (tableData.type == "packet") {
 					if(!IpSubnetmaskValidator(tableData.sourceQueryString)){
-						$("#packetIpSourceError").text("(Please enter valid CIDR)");
+						$("#packetIpSourceError").text("(Enter valid CIDR)");
 						$("#packetIpSourceError").addClass("error");
 						source_destination_ip_check = false;
 					} else {
@@ -894,7 +894,7 @@ var tableData = new Vue({
 
 				if(tableData.type == "domain") {
 					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
-						$("#domainIpDestinationError").text("(Please enter valid CIDR)");
+						$("#domainIpDestinationError").text("(Enter valid CIDR)");
 						$("#domainIpDestinationError").addClass("error");
 						source_destination_ip_check = false;
 					} else {
@@ -907,7 +907,7 @@ var tableData = new Vue({
 					}
 				} else if (tableData.type == "packet") {
 					if(!IpSubnetmaskValidator(tableData.destinationQueryString)){
-						$("#packetIpDestinationError").text("(Please enter valid CIDR)");
+						$("#packetIpDestinationError").text("(Enter valid CIDR)");
 						$("#packetIpDestinationError").addClass("error");
 						source_destination_ip_check = false;
 					} else {
