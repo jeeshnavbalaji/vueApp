@@ -475,6 +475,10 @@ textarea {
   width: 60px;
 }
 
+.footer{
+  padding: 50px;
+}
+
 /*div#wrap-box > span input {
   border: 0;
   width: 100%;
