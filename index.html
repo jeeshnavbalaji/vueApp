@@ -100,8 +100,8 @@
 					</select>
 					<label>at</label>
 					<div class="timediv">
-						<div id="timeHour"><input type="number" class="timeinput" min="0" max="23" placeholder="23" value="00"></div>:
-						<div id="timeMinute"><input type="number" class="timeinput" min="0" max="59" placeholder="01" value="01"></div>
+						<div id="timeHour"><input type="number" class="timeinput" min="0" max="23" value="00" onblur="timeHourValidation()"></div>:
+						<div id="timeMinute"><input type="number" class="timeinput" min="0" max="59" value="01"></div>
 					</div>(24-Hour Format)
 					<span id="time-error"></span>
 				</span><br>
@@ -714,5 +714,6 @@
    <script src="assets/js/app.js"></script>
    
    <link rel="stylesheet" href="assets/css/styles.css"></link>
+   <div class="footer"></div>
  </body>
 </html>
