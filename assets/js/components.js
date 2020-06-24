@@ -975,15 +975,32 @@ var tableData = new Vue({
 				if(tableData.query){
 					tableData.query = tableData.query+" AND "+tableData.resourceGroupQueryString;
 				} else {
-					tableData.query = tableData.resourceGroupQueryString;n
+					tableData.query = tableData.resourceGroupQueryString;
 				}
 				tableData.fieldsArr.push("Group");
 			}
 			if(tableData.categoryQeryString && !tableData.categoryQeryString.includes("all")) {
+				var anycategory = false;
+				var contain_slash = false;
+				if (tableData.categoryQeryString.includes("any")){
+					anycategory = true;
+					tableData.categoryQeryString = '"' + tableData.categoryDropdownArr.join('" OR "').replace(/\//g, '" OR "') + '"';
+				}
+				if (tableData.categoryQeryString.includes("/")){
+					original_category = tableData.categoryQeryString;
+					tableData.categoryQeryString = '"' + tableData.categoryQeryString.replace(/\s/g, "").replace(/\//g, '" OR "') + '"';
+					contain_slash = true;
+				}
 				if(tableData.query){
 					tableData.query = tableData.query+" AND "+tableData.categoryQeryString;
 				} else {
 					tableData.query = tableData.categoryQeryString;
+				}
+				if (anycategory){
+					tableData.categoryQeryString = "any";
+				}
+				if (contain_slash){
+					tableData.categoryQeryString = original_category;
 				}
 				tableData.fieldsArr.push("matched_categories");
 				tableData.fieldsArr.push("denied_categories");
