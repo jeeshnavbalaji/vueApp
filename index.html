@@ -447,6 +447,7 @@
 										<th style="width:90px">Category
 											<select style="color:black;width:100%;" v-model="categoryQeryString" @change="getFromQuery($event)">        
 												<option value="all">All</option>
+												<option value="any">Any</option>
 												<option v-for="category in categoryDropdownArr" v-bind:value="category">{{category}}</option>
 											</select>
 										</th>
