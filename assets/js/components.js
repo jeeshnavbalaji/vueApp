@@ -26,7 +26,7 @@ var setURL = function (type) {
 	  tableData.directionQueryString='all';
 	  tableData.resourceGroupQueryString='all';
 	  tableData.categoryQeryString='all';
-	  tableData.listQueryString='';
+	  tableData.listQueryString='all';
 	  tableData.typeQueryString='all';
 	  tableData.facilityQueryString='all';
 	  tableData.priorityQueryString='all';
@@ -97,7 +97,8 @@ var tableData = new Vue({
 	  directionQueryString:'all',
 	  resourceGroupQueryString:'all',
 	  categoryQeryString:'all',
-	  listQueryString:'',
+	  listQueryString:'all',
+	  listQuerySearch:'',
 	  typeQueryString:'all',
 	  facilityQueryString:'all',
 	  priorityQueryString:'all',
@@ -140,6 +141,7 @@ var tableData = new Vue({
 	  priorityDropdownArr:[],
 	  reasonDropdownArr: [],
 	  categoryDropdownArr: [],
+	  listDropdownArr: [],
 	  protocolDropdownArr: [],
 	  countryDropdownArr: [],
 	  timestampArr: [],
@@ -685,7 +687,8 @@ var tableData = new Vue({
 		tableData.directionQueryString='all';
 		tableData.resourceGroupQueryString='all';
 		tableData.categoryQeryString='all';
-		tableData.listQueryString='';
+		tableData.listQueryString='all';
+		tableData.listQuerySearch='';
 		tableData.typeQueryString='all',
 		tableData.facilityQueryString='all',
 		tableData.priorityQueryString='all',
@@ -825,11 +828,11 @@ var tableData = new Vue({
                  }
 			}
 			if(tableData.listQueryString && !tableData.listQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.listQueryString;
-				} else {
-					tableData.query = tableData.listQueryString;
-				}
+				// if(tableData.query){
+				// 	tableData.query = tableData.query+" AND "+tableData.listQueryString;
+				// } else {
+				// 	tableData.query = tableData.listQueryString;
+				// }
 				tableData.fieldsArr.push("threatlists");
 				tableData.fieldsArr.push("whitelists_active");
 				tableData.fieldsArr.push("blacklists_active");
@@ -1123,6 +1126,42 @@ var tableData = new Vue({
 			dataType: 'json',
 			success: function (data) {
 				tableData.rows = data.hits.hits;
+				var listdata = []
+				if (tableData.listQueryString.includes("any")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if (tableData.rows[i]._source.threatlists || tableData.rows[i]._source.whitelists_active || tableData.rows[i]._source.whitelists_inactive || tableData.rows[i]._source.blacklists_active || tableData.rows[i]._source.blacklists_inactive){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Whitelist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if ((tableData.rows[i]._source.whitelists_active) || (tableData.rows[i]._source.whitelists_inactive)){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Blacklist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if ((tableData.rows[i]._source.blacklists_active) || (tableData.rows[i]._source.blacklists_inactive) || (tableData.rows[i]._source.blacklists_matched)){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Threatlist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if (tableData.rows[i]._source.threatlists){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
 				/*for(var i=0; i<tableData.rows.length; i++) {
 					var timestamp = getTimeStamp(tableData.rows[i]._source.timestamp, "UTC");
 					tableData.rows[i]._source.timestamp = timestamp;
@@ -1496,6 +1535,42 @@ var queryFilter = function(queryString) {
 			dataType: 'json',
 			success: function (data) {
 				tableData.rows = data.hits.hits;
+				var listdata = []
+				if (tableData.listQueryString.includes("any")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if (tableData.rows[i]._source.threatlists || tableData.rows[i]._source.whitelists_active || tableData.rows[i]._source.whitelists_inactive || tableData.rows[i]._source.blacklists_active || tableData.rows[i]._source.blacklists_inactive){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Whitelist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if ((tableData.rows[i]._source.whitelists_active) || (tableData.rows[i]._source.whitelists_inactive)){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Blacklist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if ((tableData.rows[i]._source.blacklists_active) || (tableData.rows[i]._source.blacklists_inactive) || (tableData.rows[i]._source.blacklists_matched)){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
+
+				if (tableData.listQueryString.includes("Any Threatlist")){
+				       for(var i=0; i<tableData.rows.length; i++) {
+				               if (tableData.rows[i]._source.threatlists){
+				                       listdata.push(tableData.rows[i]);
+				               }
+				       }
+				       tableData.rows = listdata;
+				}
 				applyNodata();
 				for(var i=0; i<tableData.rows.length; i++) {
 					var timestamp = getTimeStamp(tableData.rows[i]._source.timestamp, "UTC");
@@ -2159,3 +2234,5 @@ tableData.priorityDropdownArr = ["EMERGENCY","ALERT","CRITICAL","ERROR","WARNING
 tableData.moduleDropdownArr = ["ALERTS","HTTP","SOFTWARE","LICENSE","LOGGING","NETWORK","NTP","POLICY","RESOURCE","SETTINGS","SYSTEM","USER","SNMP","SMTP"];
 
 tableData.auditActionDropdownArr = ["CREATE", "UPDATE", "DELETE"];
+
+tableData.listDropdownArr = ["Any Whitelist", "Any Blacklist", "Any Threatlist"];
