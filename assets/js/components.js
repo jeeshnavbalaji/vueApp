@@ -498,7 +498,16 @@ var tableData = new Vue({
 		    $("#time-error").addClass("error");
 		}
 		if ((time_hour != "" || time_hour != null) && (time_minute != "" || time_minute != null)){
-		    tableData.emailAlertTime = time_hour+":"+time_minute
+		    var userTime = time_hour+":"+time_minute+":00"
+		    const timeParts = userTime.split(":")
+//		    var milliseconds = (timeParts[0]*60*60+timeParts[1]*60)*1000
+		    var today = new Date();
+		    today.setHours(timeParts[0], timeParts[1])
+		    console.log('Todays date with user time-> '+today)
+		    var hours = ("0" + today.getUTCHours()).slice(-2);
+		    var minutes = ("0" +  today.getUTCMinutes()).slice(-2);
+		    tableData.emailAlertTime = hours+":"+minutes
+		    console.log("UTC time-> "+tableData.emailAlertTime)
 		}
 	    if(email_val == "" || email_val == null){
 	        $("#email-error").text("(Email can't be empty)");
