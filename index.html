@@ -460,8 +460,13 @@
 											</select>
 										</th>
 										<th>List
-											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQueryString" style="boarder:0px" placeholder="Search"/>
-										</th>
+											<select v-model="listQueryString" @change="getFromQuery($event)">
+												<option value="all">All</option>
+												<option value="any">Any</option>
+												<option v-for="list in listDropdownArr" v-bind:value="list">{{list}}</option>
+											</select>
+											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQuerySearch" placeholder="Search"/>
+                                        </th>
 										<th style="white-space: nowrap;overflow: hidden;">Resource Group
 										<select style="display:block" class="search-dropdown" @change="getFromQuery($event)" v-model="resourceGroupQueryString">        
 												<option value="all">All</option>
@@ -553,7 +558,12 @@
 											</select>
 										</th>
 										<th>List
-											<input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQueryString" style="boarder:0px" placeholder="Search"/>
+											<select v-model="listQueryString" @change="getFromQuery($event)">
+                                                <option value="all">All</option>
+                                                <option value="any">Any</option>
+                                                <option v-for="list in listDropdownArr" v-bind:value="list">{{list}}</option>
+                                            </select>
+                                            <input class="search-dropdown input-boarder" @change="getFromQuery($event)" v-model="listQuerySearch" placeholder="Search"/>
 										</th>
 										<th>Device
 											<select class="search-dropdown" @change="getFromQuery($event)" v-model="deviceQueryString">        

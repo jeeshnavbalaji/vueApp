@@ -26,7 +26,7 @@ var setURL = function (type) {
 	  tableData.directionQueryString='all';
 	  tableData.resourceGroupQueryString='all';
 	  tableData.categoryQeryString='all';
-	  tableData.listQueryString='';
+	  tableData.listQueryString='all';
 	  tableData.typeQueryString='all';
 	  tableData.facilityQueryString='all';
 	  tableData.priorityQueryString='all';
@@ -36,6 +36,7 @@ var setURL = function (type) {
 	  tableData.sourceIpObj = {};
 	  tableData.dstIpObj = {};
 	  tableData.messageQueryObj = {};
+	  tableData.packetDomainListQueryObj = {};
 	  tableData.timestampArr= [];
 	  tableData.protocolArr= [];
 	  tableData.actionArr=[];
@@ -54,6 +55,7 @@ var setURL = function (type) {
 	  tableData.userTypeQueryString='all';
 	  tableData.groupIPAddress='';
 	  tableData.emailAlertChecked = '';
+	  tableData.listQuerySearch = '';
 	if (type === "domain") {
 		esURL = esDomainURL;
 	} else if (type === "packet") {
@@ -97,7 +99,8 @@ var tableData = new Vue({
 	  directionQueryString:'all',
 	  resourceGroupQueryString:'all',
 	  categoryQeryString:'all',
-	  listQueryString:'',
+	  listQueryString:'all',
+	  listQuerySearch:'',
 	  typeQueryString:'all',
 	  facilityQueryString:'all',
 	  priorityQueryString:'all',
@@ -133,6 +136,7 @@ var tableData = new Vue({
 	  dateRangeObj: {},
 	  sourceIpObj: {},
 	  messageQueryObj: {},
+	  packetDomainListQueryObj: {},
 	  dstIpObj: {},
 	  fieldsArr: [],
 	  typeDropdownArr: [],
@@ -140,6 +144,7 @@ var tableData = new Vue({
 	  priorityDropdownArr:[],
 	  reasonDropdownArr: [],
 	  categoryDropdownArr: [],
+	  listDropdownArr: [],
 	  protocolDropdownArr: [],
 	  countryDropdownArr: [],
 	  timestampArr: [],
@@ -685,7 +690,8 @@ var tableData = new Vue({
 		tableData.directionQueryString='all';
 		tableData.resourceGroupQueryString='all';
 		tableData.categoryQeryString='all';
-		tableData.listQueryString='';
+		tableData.listQueryString='all';
+		tableData.listQuerySearch='';
 		tableData.typeQueryString='all',
 		tableData.facilityQueryString='all',
 		tableData.priorityQueryString='all',
@@ -695,6 +701,7 @@ var tableData = new Vue({
 		tableData.sourceIpObj = {};
 		tableData.dstIpObj = {};
 		tableData.messageQueryObj = {};
+		tableData.packetDomainListQueryObj = {};
 		tableData.moduleQueryString='all',
 		tableData.actionTypeQueryString='all',
 		tableData.userTypeQueryString='all',
@@ -824,18 +831,84 @@ var tableData = new Vue({
                     }
                  }
 			}
-			if(tableData.listQueryString && !tableData.listQueryString.includes("all")) {
-				if(tableData.query){
-					tableData.query = tableData.query+" AND "+tableData.listQueryString;
-				} else {
-					tableData.query = tableData.listQueryString;
-				}
+
+			if(tableData.listQueryString.includes("all")){
+				tableData.packetDomainListQueryObj = {};
+			}
+			if(tableData.listQuerySearch || tableData.listQueryString.includes("any")) {
+				tableData.packetDomainListQueryObj = {};
 				tableData.fieldsArr.push("threatlists");
 				tableData.fieldsArr.push("whitelists_active");
-				tableData.fieldsArr.push("blacklists_active");
 				tableData.fieldsArr.push("whitelists_inactive");
-				tableData.fieldsArr.push("blacklists_inactive");
-				tableData.fieldsArr.push("blacklists_matched");
+				tableData.fieldsArr.push("blacklists_active");
+				if(tableData.type == "domain") {
+					tableData.fieldsArr.push("blacklists_matched");
+				} else if (tableData.type == "packet") {
+					tableData.fieldsArr.push("blacklists_inactive");
+				}
+				if(tableData.query && tableData.listQuerySearch){
+					tableData.query = tableData.query+" AND "+tableData.listQuerySearch;
+				} else {
+					tableData.query = tableData.listQuerySearch;
+				}
+			}
+			//working
+			if (tableData.listQueryString.includes("any")){
+				tableData.packetDomainListQueryObj = {};
+				tableData.packetDomainListQueryObj = {
+					"dis_max" : {
+						"queries" : [
+							{"wildcard" : { "whitelists_inactive" : {"value" : "*"}}},
+							{"wildcard" : { "whitelists_active" : {"value" : "*"}}},
+							{"wildcard" : { "blacklists_active" : {"value" : "*"}}},
+							{"wildcard" : { "blacklists_inactive" : {"value" : "*"}}},
+							{"wildcard" : { "threatlists" : {"value" : "*"}}},
+							{"wildcard" : { "blacklists_matched" : {"value" : "*"}}}
+						]
+					}
+				}
+			}
+			if (tableData.listQueryString.includes("Any Whitelist")){
+				tableData.fieldsArr.push("whitelists_active");
+				tableData.fieldsArr.push("whitelists_inactive");
+				tableData.packetDomainListQueryObj = {};
+				tableData.packetDomainListQueryObj = {
+					"dis_max" : {
+						"queries" : [
+							{"wildcard" : { "whitelists_inactive" : {"value" : "*"}}},
+							{"wildcard" : { "whitelists_active" : {"value" : "*"}}}
+						]
+					}
+				}
+			}
+			if (tableData.listQueryString.includes("Any Blacklist")){
+				tableData.fieldsArr.push("blacklists_active");
+				if(tableData.type == "domain") {
+					tableData.fieldsArr.push("blacklists_matched");
+				} else if (tableData.type == "packet") {
+					tableData.fieldsArr.push("blacklists_inactive");
+				}
+				tableData.packetDomainListQueryObj = {};
+				tableData.packetDomainListQueryObj = {
+					"dis_max" : {
+						"queries" : [
+							{"wildcard" : { "blacklists_active" : {"value" : "*"}}},
+							{"wildcard" : { "blacklists_inactive" : {"value" : "*"}}},
+							{"wildcard" : { "blacklists_matched" : {"value" : "*"}}}
+						]
+					}
+				}
+			}
+			if (tableData.listQueryString.includes("Any Threatlist")){
+				tableData.fieldsArr.push("threatlists");
+				tableData.packetDomainListQueryObj = {};
+				tableData.packetDomainListQueryObj = {
+					"dis_max" : {
+						"queries" : [
+							{"wildcard" : { "threatlists" : {"value" : "*"}}}
+						]
+					}
+				}
 			}
 			if(tableData.domainQueryString && !tableData.domainQueryString.includes("all")) {
 				if(tableData.query){
@@ -1049,7 +1122,7 @@ var tableData = new Vue({
 				tableData.fieldsArr.push("userVal");
 			}
 			/*tableData.query = tableData.dateQueryString+" "+tableData.domainQueryString+" "+tableData.protoQueryString+" "+tableData.sourceQueryString+" "+tableData.destinationQueryString+" "+tableData.actionQueryString+" "+tableData.reasonQueryString+" "+tableData.deviceQueryString;*/
-			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString) {
+			if(tableData.query || tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString || Object.keys(tableData.packetDomainListQueryObj).length > 0) {
 				queryFilter(tableData.query, tableData.pageSize);
 			} else{
 				tableData.getRrecentOrOldDocs('desc');
@@ -1534,7 +1607,7 @@ var setDataObject = function (queryString) {
 			}
 		}
 	};
-	if (tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString) {
+	if (tableData.dateQueryString || tableData.sourceQueryString || tableData.destinationQueryString || tableData.messageQueryString || Object.keys(tableData.packetDomainListQueryObj).length > 0) {
 		var rangeObj = {
 			"range": tableData.dateRangeObj
 		}
@@ -1550,6 +1623,9 @@ var setDataObject = function (queryString) {
 			}
 			if(tableData.messageQueryString) {
 			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
+			}
+			if(Object.keys(tableData.packetDomainListQueryObj).length > 0) {
+				dataToBeSent.query.bool.must.push(tableData.packetDomainListQueryObj)
 			}
 		} else {
 			var queryStringObj = {
@@ -1571,6 +1647,10 @@ var setDataObject = function (queryString) {
 			}
 			if(tableData.messageQueryString) {
 			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
+			}
+			//working
+			if(Object.keys(tableData.packetDomainListQueryObj).length > 0) {
+				dataToBeSent.query.bool.must.push(tableData.packetDomainListQueryObj)
 			}
 		}
 	} else {
@@ -2159,3 +2239,5 @@ tableData.priorityDropdownArr = ["EMERGENCY","ALERT","CRITICAL","ERROR","WARNING
 tableData.moduleDropdownArr = ["ALERTS","HTTP","SOFTWARE","LICENSE","LOGGING","NETWORK","NTP","POLICY","RESOURCE","SETTINGS","SYSTEM","USER","SNMP","SMTP"];
 
 tableData.auditActionDropdownArr = ["CREATE", "UPDATE", "DELETE"];
+
+tableData.listDropdownArr = ["Any Whitelist", "Any Blacklist", "Any Threatlist"];
