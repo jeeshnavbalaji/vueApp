@@ -34,7 +34,9 @@ var setURL = function (type) {
 	  tableData.query='';
 	  tableData.dateRangeObj= {};
 	  tableData.sourceIpObj = {};
+	  tableData.sourcePortObj = {};
 	  tableData.dstIpObj = {};
+	  tableData.dstPortObj = {};
 	  tableData.messageQueryObj = {};
 	  tableData.packetDomainListQueryObj = {};
 	  tableData.timestampArr= [];
@@ -135,9 +137,11 @@ var tableData = new Vue({
 	  emailAlertTabName: 'packet',
 	  dateRangeObj: {},
 	  sourceIpObj: {},
+	  sourcePortObj: {},
 	  messageQueryObj: {},
 	  packetDomainListQueryObj: {},
 	  dstIpObj: {},
+	  dstPortObj: {},
 	  fieldsArr: [],
 	  typeDropdownArr: [],
 	  facilityDropdownArr:[],
@@ -185,7 +189,9 @@ var tableData = new Vue({
 	  apiKeySubmit:'',
 	  policyDeniedCountries: [],
 	  policyAllowedCountries:[],
-	  provideGmcKeyWarning: 'Please provide your GMC api key'
+	  provideGmcKeyWarning: 'Please provide your GMC api key',
+	  ipSubnetWithPortRegex: /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([1-9]|[1-2][0-9]|3[0-2])):[0-9]+$/,
+	  ipWithPortRegex: /^([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]+$/
 	},
   //components: {dateRangePicker},
    methods: {
@@ -708,7 +714,9 @@ var tableData = new Vue({
 		tableData.query = '';
 		tableData.dateRangeObj = {};
 		tableData.sourceIpObj = {};
+		tableData.sourcePortObj = {};
 		tableData.dstIpObj = {};
+		tableData.dstPortObj = {};
 		tableData.messageQueryObj = {};
 		tableData.packetDomainListQueryObj = {};
 		tableData.moduleQueryString='all',
@@ -771,7 +779,9 @@ var tableData = new Vue({
 			tableData.fieldsArr = [];
 			tableData.dateRangeObj = {};
 			tableData.sourceIpObj={};
+			tableData.sourcePortObj = {};
 			tableData.dstIpObj={};
+			tableData.dstPortObj = {};
 			tableData.messageQueryObj={};
 			if(tableData.dateQueryString) {
 				dateArr = tableData.dateQueryString.split("-");
@@ -971,6 +981,18 @@ var tableData = new Vue({
 							    "sourcePort": tableData.sourceQueryString
 						    }
 						}
+					} else if(tableData.sourceQueryString.match(tableData.ipSubnetWithPortRegex) || tableData.sourceQueryString.match(tableData.ipWithPortRegex)){
+	                    var sourceStringArray = tableData.sourceQueryString.split(":")
+	                    tableData.sourceIpObj = {
+	                        "term":{
+							    "source": sourceStringArray[0]
+						    }
+	                    }
+	                    tableData.sourcePortObj = {
+	                        "term":{
+							    "sourcePort": sourceStringArray[1]
+						    }
+	                    }
 					} else {
 					    tableData.sourceIpObj = {
 						    "term":{
@@ -1009,6 +1031,18 @@ var tableData = new Vue({
 							    "destinationPort": tableData.destinationQueryString
 						    }
 						}
+					} else if(tableData.destinationQueryString.match(tableData.ipSubnetWithPortRegex) || tableData.destinationQueryString.match(tableData.ipWithPortRegex)){
+	                    var destinationStringArray = tableData.destinationQueryString.split(":")
+	                    tableData.dstIpObj = {
+	                        "term":{
+							    "destination": destinationStringArray[0]
+						    }
+	                    }
+	                    tableData.dstPortObj = {
+	                        "term":{
+							    "destinationPort": destinationStringArray[1]
+						    }
+	                    }
 					} else {
 					    tableData.dstIpObj = {
 						    "term":{
@@ -1625,10 +1659,20 @@ var setDataObject = function (queryString) {
 				dataToBeSent.query.bool.must.push(rangeObj);
 			}
 			if(tableData.sourceQueryString) {
-				dataToBeSent.query.bool.must.push(tableData.sourceIpObj);
+				if(Object.keys(tableData.sourcePortObj).length > 0){
+				    dataToBeSent.query.bool.must.push(tableData.sourceIpObj);
+				    dataToBeSent.query.bool.must.push(tableData.sourcePortObj);
+				} else {
+				    dataToBeSent.query.bool.must.push(tableData.sourceIpObj);
+				}
 			}
 			if(tableData.destinationQueryString) {
-				dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				if(Object.keys(tableData.dstPortObj).length > 0){
+				    dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				    dataToBeSent.query.bool.must.push(tableData.dstPortObj);
+				} else {
+				    dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				}
 			}
 			if(tableData.messageQueryString) {
 			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
@@ -1649,10 +1693,20 @@ var setDataObject = function (queryString) {
 				dataToBeSent.query.bool.must.push(rangeObj);
 			}
 			if(tableData.sourceQueryString) {
-				dataToBeSent.query.bool.must.push(tableData.sourceIpObj);
+				if(Object.keys(tableData.sourcePortObj).length > 0){
+				    dataToBeSent.query.bool.must.push(tableData.sourceIpObj)
+				    dataToBeSent.query.bool.must.push(tableData.sourcePortObj)
+				} else {
+				    dataToBeSent.query.bool.must.push(tableData.sourceIpObj);
+				}
 			}
 			if(tableData.destinationQueryString) {
-				dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				if(Object.keys(tableData.dstPortObj).length > 0){
+				    dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				    dataToBeSent.query.bool.must.push(tableData.dstPortObj);
+				} else {
+				    dataToBeSent.query.bool.must.push(tableData.dstIpObj);
+				}
 			}
 			if(tableData.messageQueryString) {
 			    dataToBeSent.query.bool.must.push(tableData.messageQueryObj)
@@ -1719,7 +1773,7 @@ var isEmailFieldSelected = function (obj) {
 
 var IpSubnetmaskValidator = function(searchTerm){
 	var ipSubnetregex = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([1-9]|[1-2][0-9]|3[0-2]))?$/
-	if (searchTerm.match(ipSubnetregex) || validatePort(searchTerm, 1, 65535)){
+	if (searchTerm.match(ipSubnetregex) || validatePort(searchTerm, 1, 65535) || searchTerm.match(tableData.ipSubnetWithPortRegex) || searchTerm.match(tableData.ipWithPortRegex)){
 		return true;
 	}
 	return false;
