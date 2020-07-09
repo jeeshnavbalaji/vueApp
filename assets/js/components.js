@@ -187,6 +187,7 @@ var tableData = new Vue({
 	  whitelistIpGroupNames: [],
 	  blacklistIpGroupNames: [],
 	  apiKeySubmit:'',
+	  logrotationDays: '',
 	  policyDeniedCountries: [],
 	  policyAllowedCountries:[],
 	  provideGmcKeyWarning: 'Please provide your GMC api key',
@@ -375,7 +376,10 @@ var tableData = new Vue({
 	},
 
 	saveGmcKey: function () {
-		dataObject = { "apikey": tableData.apiKeySubmit }
+		dataObject = {
+			"apikey": tableData.apiKeySubmit,
+			"logrotation": tableData.logrotationDays
+		}
 		$.ajax({
 			url: serviceApiUrl+"/gmckey",
 			type: 'post',
@@ -723,6 +727,7 @@ var tableData = new Vue({
 		tableData.actionTypeQueryString='all',
 		tableData.userTypeQueryString='all',
 		tableData.apiKeySubmit='',
+		tableData.logrotationDays= '',
 		getLogs(tableData.from);
 		$("#packetIpSourceError").text("");
 		$("#packetIpDestinationError").text("");
