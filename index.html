@@ -327,13 +327,14 @@
 	<section>
 		<div class="container-fluid hidden" style="text-align: center; padding-top: 40px;" id="gmcKeyPage">
 			<div class="apikey-box">
-				<div class="col-sm-12">
-					<h3 style="">GMC APIKEY</h3>
+				<div class="col-sm-12 col-md-12">
+					<h3 style="">Configuration</h3>
 					<span class="">
-						<input class="apiKeyInputWidth" v-model="apiKeySubmit" placeholder="Enter API KEY"/>
+						<div class="col-md-4"><label>GMC APIKEY:</label></div><div class="col-md-8"><input class="apiKeyInputWidth" v-model="apiKeySubmit" placeholder="Enter API KEY"/></div><br/><br/>
+						<div class="col-md-4"><label>LOGROTATION NO OF DAYS:</label></div><div class="col-md-4"><input class="apiKeyInputWidth" v-model="logrotationDays" placeholder="Enter Number of Days for Logration"/>
 						<div id="apiErroMessage"></div><br/>
 						<button type="button" class="btn btn-success" @click="saveGmcKey();">Save</button>
-						<button type="button" class="btn btn-light" @click="saveGmcKeyCancle();">Cancel</button>
+						<button type="button" class="btn btn-light" @click="saveGmcKeyCancle();">Cancel</button></div>
 					</span>
 				</div>
 			</div>
@@ -378,7 +379,7 @@
 						</select>
 						<span class="btn btn-default copy-btn ml-auto" @click="copyToClipboard();">Export...</span>
 						<span class="btn btn-default copy-btn ml-auto" @click="setEmailAlert();">Email Alerts</span>
-						<span class="btn btn-default copy-btn ml-auto" @click="setGMCKey();">API Config</span>
+						<span class="btn btn-default copy-btn ml-auto" @click="setGMCKey();">Configurations</span>
 						<a style="float:right;margin-right: 20px;"><label @click="resetSearchFilters()">Reset</label></a>
 					</div>
 				</div>
